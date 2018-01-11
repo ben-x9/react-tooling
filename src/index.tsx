@@ -7,8 +7,9 @@ import { AppContainer } from "react-hot-loader"
 import dispatch from "./dispatchMiddleware"
 import * as Router from "./router"
 import { RouteToUri, UriToRoute } from "./router"
+import EditableText from "EditableText"
 
-export { React }
+export { React, EditableText }
 
 export type Dispatch = <A extends Redux.Action, E>(action: A, e?: React.SyntheticEvent<E>) => A
 
