@@ -2,7 +2,6 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import * as Redux from "redux"
 import { createStore, applyMiddleware, compose } from "redux"
-import * as ReactRedux from "react-redux"
 import { Provider, connect } from "react-redux"
 import { AppContainer } from "react-hot-loader"
 import dispatch from "./dispatchMiddleware"
@@ -11,12 +10,22 @@ import { RouteToUri, UriToRoute } from "./router"
 
 export { React }
 
-export type Dispatch = ReactRedux.Dispatch<Redux.Action>
+export type Dispatch = <A extends Redux.Action, E>(action: A, e?: React.SyntheticEvent<E>) => A
+
 export type Dispatcher = {dispatch: Dispatch}
+
 export class DispatchComponent<P> extends React.PureComponent<P & Dispatcher> {
-  // dispatch(action: Action) {
-  //   return this.props.dispatch(action)
-  // }
+  constructor(props: P & Dispatcher) {
+    super(props)
+    this.dispatch = this.dispatch.bind(this)
+  }
+
+  dispatch<A extends Redux.Action, E>(
+           action: A,
+           eventToStop?: React.SyntheticEvent<E>) {
+    if (eventToStop) eventToStop.stopPropagation()
+    return this.props.dispatch(action)
+  }
 }
 
 export type Goto<Route> = Router.Action<Route>
