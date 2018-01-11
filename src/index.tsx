@@ -7,7 +7,7 @@ import { AppContainer } from "react-hot-loader"
 import dispatch from "./dispatchMiddleware"
 import * as Router from "./router"
 import { RouteToUri, UriToRoute } from "./router"
-import EditableText from "EditableText"
+import EditableText from "./EditableText"
 
 export { React, EditableText }
 
