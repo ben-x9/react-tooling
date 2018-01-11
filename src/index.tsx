@@ -42,7 +42,7 @@ export const load = function<State extends {},
     update: Update<State, Action>,
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
-    rootHTMLElement?: HTMLElement) {
+    rootHTMLElement?: HTMLElement | null) {
 
   const wrappedUpdate = (state: State, action: Action) => {
     Router.update(action as any as Router.Action<Route>, routeToUri)
