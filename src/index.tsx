@@ -11,6 +11,8 @@ import EditableText from "./EditableText"
 
 export { React, EditableText }
 
+export type AnyAction = Redux.Action
+
 export type Dispatch = <A extends Redux.Action, E>(action: A, e?: React.SyntheticEvent<E>) => A
 
 export type Dispatcher = {dispatch: Dispatch}
@@ -36,18 +38,26 @@ export const goto = Router.goto
 
 type Update<State, Action> = (state: State, action: Action) => State
 
-export const load = function<State extends {},
-                      Action extends Redux.Action,
-                      Route>(
+export const load = function
+    <State extends Router.State<Route>,
+     Action extends Redux.Action,
+     Route>(
     RootJSXElement: (state: State) => JSX.Element,
     update: Update<State, Action>,
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
-    rootHTMLElement?: HTMLElement | null) {
+    rootHTMLElement= document.body.firstElementChild) {
 
   const wrappedUpdate = (state: State, action: Action) => {
-    Router.update(action as any as Router.Action<Route>, routeToUri)
-    return update(state, action)
+    let newState = state as Router.State<Route>
+    if (Router.reactsTo<Route>(action)) {
+       newState = Router.update(
+        state,
+        action,
+        routeToUri
+      )
+    }
+    return update(newState as State, action)
   }
 
   // Initalize the store
@@ -87,7 +97,7 @@ export const load = function<State extends {},
         <View />
       </Provider>
     </AppContainer>,
-    rootHTMLElement || document.body.firstChild as HTMLElement
+    rootHTMLElement
   )
 
   return (update: Update<State, Action>) => { store.replaceReducer(update) }
