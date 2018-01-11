@@ -29,10 +29,11 @@ type Update<State, Action> = (state: State, action: Action) => State
 export const load = function<State extends {},
                       Action extends Redux.Action,
                       Route>(
-    RootElement: (state: State) => JSX.Element,
+    RootJSXElement: (state: State) => JSX.Element,
     update: Update<State, Action>,
     routeToUri: RouteToUri<Route>,
-    uriToRoute: UriToRoute<Route>) {
+    uriToRoute: UriToRoute<Route>,
+    rootHTMLElement?: HTMLElement) {
 
   const wrappedUpdate = (state: State, action: Action) => {
     Router.update(action as any as Router.Action<Route>, routeToUri)
@@ -64,7 +65,7 @@ export const load = function<State extends {},
     }
 
     render() {
-      return <RootElement {...this.props as State}/>
+      return <RootJSXElement {...this.props as State}/>
     }
   }
 
@@ -76,9 +77,8 @@ export const load = function<State extends {},
         <View />
       </Provider>
     </AppContainer>,
-    document.getElementById("root")
+    rootHTMLElement || document.body.firstChild as HTMLElement
   )
 
   return (update: Update<State, Action>) => { store.replaceReducer(update) }
 }
-
