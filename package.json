@@ -1,6 +1,6 @@
 {
   "name": "reactive-elm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "React with the Elm Architecture",
@@ -15,7 +15,8 @@
     "elm-architecture"
   ],
   "scripts": {
-    "build": "rm -r dist && tsc"
+    "build": "rm -rf dist && tsc",
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@types/history": "^4.6.2",
