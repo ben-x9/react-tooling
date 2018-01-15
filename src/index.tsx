@@ -9,7 +9,7 @@ import * as Router from "./router"
 import { RouteToUri, UriToRoute } from "./router"
 import EditableText from "./EditableText"
 
-export { React, EditableText }
+export { React, EditableText, JSX }
 
 export type AnyAction = Redux.Action
 
