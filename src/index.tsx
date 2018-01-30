@@ -37,8 +37,20 @@ export const GotoType = Router.ActionType.Goto
 export const goto = Router.goto
 
 type Update<State, Action> = (state: State, action: Action) => State
+type Reload<State, Action> = (update: Update<State, Action>) => void
 
-export const load = function
+type Load =
+  <State extends Router.State<Route>,
+   Action extends Redux.Action,
+   Route>(
+     RootJSXElement: (state: State) => JSX.Element,
+     update: Update<State, Action>,
+     routeToUri: RouteToUri<Route>,
+     uriToRoute: UriToRoute<Route>,
+     rootHTMLElement?: Element
+   ) => Reload<State, Action>
+
+const initialLoad: Load = function
     <State extends Router.State<Route>,
      Action extends Redux.Action,
      Route>(
@@ -48,7 +60,8 @@ export const load = function
     uriToRoute: UriToRoute<Route>,
     rootHTMLElement= document.body.firstElementChild) {
 
-  const wrappedUpdate = (state: State, action: Action) => {
+  const wrappedUpdate = (update: Update<State, Action>) =>
+                        (state: State, action: Action) => {
     let newState = state as Router.State<Route>
     if (Router.reactsTo<Route>(action)) {
        newState = Router.update(
@@ -66,7 +79,7 @@ export const load = function
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
   let store = createStore(
-    wrappedUpdate,
+    wrappedUpdate(update),
     composeEnhancers(applyMiddleware(dispatch))
   )
 
@@ -100,5 +113,40 @@ export const load = function
     rootHTMLElement
   )
 
-  return (update: Update<State, Action>) => { store.replaceReducer(update) }
+  return (update: Update<State, Action>) => {
+    store.replaceReducer(wrappedUpdate(update))
+  }
+}
+
+export interface HotModule extends NodeModule {
+  hot: {
+    accept: (file?: string, cb?: () => void) => void;
+    dispose: (callback: () => void) => void;
+  } | null
+}
+
+let doReload: any
+export const load = function
+    <State extends Router.State<Route>,
+    Action extends Redux.Action,
+    Route>(
+    RootJSXElement: (state: State) => JSX.Element,
+    update: Update<State, Action>,
+    routeToUri: RouteToUri<Route>,
+    uriToRoute: UriToRoute<Route>,
+    module: NodeModule,
+    rootHTMLElement?: Element) {
+  if (doReload) {
+    doReload(update)
+  } else {
+    doReload = initialLoad(
+      RootJSXElement,
+      update,
+      routeToUri,
+      uriToRoute,
+      rootHTMLElement
+    )
+  }
+  const mod = module as HotModule
+  if (mod.hot) mod.hot.accept()
 }
