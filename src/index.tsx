@@ -37,20 +37,10 @@ export const GotoType = Router.ActionType.Goto
 export const goto = Router.goto
 
 type Update<State, Action> = (state: State, action: Action) => State
-type Reload<State, Action> = (update: Update<State, Action>) => void
 
-type Load =
-  <State extends Router.State<Route>,
-   Action extends Redux.Action,
-   Route>(
-     RootJSXElement: (state: State) => JSX.Element,
-     update: Update<State, Action>,
-     routeToUri: RouteToUri<Route>,
-     uriToRoute: UriToRoute<Route>,
-     rootHTMLElement?: Element
-   ) => Reload<State, Action>
+let store: Redux.Store<any>
 
-const initialLoad: Load = function
+export const load = function
     <State extends Router.State<Route>,
      Action extends Redux.Action,
      Route>(
@@ -58,10 +48,10 @@ const initialLoad: Load = function
     update: Update<State, Action>,
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
+    module: NodeModule,
     rootHTMLElement= document.body.firstElementChild) {
 
-  const wrappedUpdate = (update: Update<State, Action>) =>
-                        (state: State, action: Action) => {
+  const wrappedUpdate = (state: State, action: Action) => {
     let newState = state as Router.State<Route>
     if (Router.reactsTo<Route>(action)) {
        newState = Router.update(
@@ -78,10 +68,14 @@ const initialLoad: Load = function
   const composeEnhancers = (window as any).
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-  let store = createStore(
-    wrappedUpdate(update),
-    composeEnhancers(applyMiddleware(dispatch))
-  )
+  if (store) {
+    store.replaceReducer(wrappedUpdate)
+  } else {
+    store = createStore(
+      wrappedUpdate,
+      composeEnhancers(applyMiddleware(dispatch))
+    )
+  }
 
   class Index extends DispatchComponent<any> {
     unloadRouter: () => void
@@ -113,9 +107,8 @@ const initialLoad: Load = function
     rootHTMLElement
   )
 
-  return (update: Update<State, Action>) => {
-    store.replaceReducer(wrappedUpdate(update))
-  }
+  const mod = module as HotModule
+  if (mod.hot) mod.hot.accept()
 }
 
 export interface HotModule extends NodeModule {
@@ -125,28 +118,7 @@ export interface HotModule extends NodeModule {
   } | null
 }
 
-let doReload: any
-export const load = function
-    <State extends Router.State<Route>,
-    Action extends Redux.Action,
-    Route>(
-    RootJSXElement: (state: State) => JSX.Element,
-    update: Update<State, Action>,
-    routeToUri: RouteToUri<Route>,
-    uriToRoute: UriToRoute<Route>,
-    module: NodeModule,
-    rootHTMLElement?: Element) {
-  if (doReload) {
-    doReload(update)
-  } else {
-    doReload = initialLoad(
-      RootJSXElement,
-      update,
-      routeToUri,
-      uriToRoute,
-      rootHTMLElement
-    )
-  }
-  const mod = module as HotModule
-  if (mod.hot) mod.hot.accept()
-}
+export type Nothing = null | undefined | void
+export type Maybe<T> = T | Nothing
+export type List<T> = ReadonlyArray<T>
+export type Type<T> = (x: T) => T
