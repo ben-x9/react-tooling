@@ -80,6 +80,13 @@ export const load = function
   class Index extends DispatchComponent<any> {
     unloadRouter: () => void
 
+    constructor(state: State & Dispatcher) {
+      super(state)
+      if (typeof (window as any).__REACT_HOT_LOADER__ !== "undefined") {
+        (window as any).__REACT_HOT_LOADER__.warnings = false
+      }
+    }
+
     componentWillMount() {
       this.unloadRouter = Router.load(
         this.props.dispatch,
