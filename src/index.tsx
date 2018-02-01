@@ -134,3 +134,27 @@ export type Nothing = null | undefined | void
 export type Maybe<T> = T | Nothing
 export type List<T> = ReadonlyArray<T>
 export type Type<T> = (x: T) => T
+}
+
+export type Nothing = null | undefined | void
+export type Maybe<T> = T | Nothing
+export type List<T> = ReadonlyArray<T>
+export type Type<T> = (x: T) => T
+
+
+/* Wrap component update funtions in tests so we can leave out the dispatch
+   parameter */
+
+const actionWithDispatch = <A extends AnyAction>(action: A): A & Dispatcher =>
+  Object.assign({}, action, {
+    dispatch<A extends AnyAction>(a: A) {
+      return a
+    }
+  })
+
+type UpdateFn<S, A extends AnyAction> = (state: S, action: A & Dispatcher) => S
+export type WrappedUpdateFn<S, A extends AnyAction> = (state: S, action: A) => S
+
+export const withDispatch =
+  <S, A extends AnyAction> (f: UpdateFn<S, A>): WrappedUpdateFn<S, A> =>
+    (state, action) => f(state, actionWithDispatch(action))
