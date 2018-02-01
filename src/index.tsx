@@ -17,7 +17,7 @@ export type Dispatch = <A extends Redux.Action, E>(action: A, e?: React.Syntheti
 
 export type Dispatcher = {dispatch: Dispatch}
 
-export class DispatchComponent<P> extends React.PureComponent<P & Dispatcher> {
+export class Component<P> extends React.PureComponent<P & Dispatcher> {
   constructor(props: P & Dispatcher) {
     super(props)
     this.dispatch = this.dispatch.bind(this)
@@ -36,7 +36,7 @@ export type GotoType = Router.ActionType
 export const GotoType = Router.ActionType.Goto
 export const goto = Router.goto
 
-type Update<State, Action> = (state: State, action: Action) => State
+export type Update<State, Action> = (state: State, action: Action) => State
 
 let store: Redux.Store<any>
 
@@ -44,7 +44,9 @@ export const load = function
     <State extends Router.State<Route>,
      Action extends Redux.Action,
      Route>(
-    RootJSXElement: (state: State) => JSX.Element,
+    RootJSXElement:
+      ((state: State) => JSX.Element) |
+      { new(state: State & Dispatcher): Component<State> },
     update: Update<State, Action>,
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
@@ -77,7 +79,7 @@ export const load = function
     )
   }
 
-  class Index extends DispatchComponent<any> {
+  class Index extends Component<any> {
     unloadRouter: () => void
 
     constructor(state: State & Dispatcher) {
@@ -99,7 +101,10 @@ export const load = function
     }
 
     render() {
-      return <RootJSXElement {...this.props as State}/>
+      // Force TS to see RootJSXElement as an SFC due to this bug:
+      // https://github.com/Microsoft/TypeScript/issues/15463
+      const Elem = RootJSXElement as any as (state: State) => JSX.Element
+      return <Elem {...this.props as State}/>
     }
   }
 
