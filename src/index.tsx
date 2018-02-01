@@ -44,10 +44,12 @@ export const load = function
     <State extends Router.State<Route>,
      Action extends Redux.Action,
      Route>(
+    initialState: State,
+    reactsTo: (action: AnyAction) => action is Action,
+    update: Update<State, Action>,
     RootJSXElement:
       ((state: State) => JSX.Element) |
       { new(state: State & Dispatcher): Component<State> },
-    update: Update<State, Action>,
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
     module: NodeModule,
@@ -62,7 +64,10 @@ export const load = function
         routeToUri
       )
     }
-    return update(newState as State, action)
+    if (reactsTo(action)) {
+      newState = update(newState as State, action)
+    }
+    return newState
   }
 
   // Initalize the store
@@ -75,6 +80,7 @@ export const load = function
   } else {
     store = createStore(
       wrappedUpdate,
+      initialState,
       composeEnhancers(applyMiddleware(dispatch))
     )
   }
@@ -128,12 +134,6 @@ export interface HotModule extends NodeModule {
     accept: (file?: string, cb?: () => void) => void;
     dispose: (callback: () => void) => void;
   } | null
-}
-
-export type Nothing = null | undefined | void
-export type Maybe<T> = T | Nothing
-export type List<T> = ReadonlyArray<T>
-export type Type<T> = (x: T) => T
 }
 
 export type Nothing = null | undefined | void
