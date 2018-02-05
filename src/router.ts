@@ -8,9 +8,11 @@ export type RouteToUri<Route> = (route: Route) => string
 
 export const load = <Route>(dispatch: ReactRedux.Dispatch<Redux.Action>,
                             uriToRoute: UriToRoute<Route>) => {
-  dispatch(goto(uriToRoute(window.location.pathname), true))
+  dispatch(goto(uriToRoute(window.location.pathname.slice(1)), true))
   return history.listen((location, action) => {
-    if (action === "POP") dispatch(goto(uriToRoute(location.pathname), true))
+    if (action === "POP") dispatch(goto(
+      uriToRoute(location.pathname.slice(1)), true
+    ))
   })
 }
 
@@ -54,7 +56,7 @@ export const update = <Route>(
                        routeToUri: RouteToUri<Route>): State<Route> => {
   switch (action.type) {
     case ActionType.Goto:
-      if (!action.viaHistory) history.push(routeToUri(action.route))
+      if (!action.viaHistory) history.push("/" + routeToUri(action.route))
       return { ...state, route: action.route }
   }
 }
