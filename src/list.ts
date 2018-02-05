@@ -18,7 +18,9 @@ const set = <T extends {}>(list: List<T>,
 const get = <T extends {}>(list: List<T>, where: Partial<T>) =>
   list.find(item => propsMatch(item, where))
 
+const reverse = <T>(list: List<T>): List<T> => list.slice().reverse()
+
 type List<T> = ReadonlyArray<T>
-const List = { set, get }
+const List = { set, get, reverse }
 
 export default List
