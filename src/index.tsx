@@ -9,7 +9,10 @@ import * as Router from "./router"
 import { RouteToUri, UriToRoute } from "./router"
 import EditableText from "./EditableText"
 
-export { React, EditableText, JSX }
+export { Nothing, Maybe, Type, List } from "./types"
+import * as list from "./list"
+
+export { React, EditableText, JSX, list }
 
 export type AnyAction = Redux.Action
 
@@ -135,12 +138,6 @@ export interface HotModule extends NodeModule {
     dispose: (callback: () => void) => void;
   } | null
 }
-
-export type Nothing = null | undefined | void
-export type Maybe<T> = T | Nothing
-export type List<T> = ReadonlyArray<T>
-export type Type<T> = (x: T) => T
-
 
 /* Wrap component update funtions in tests so we can leave out the dispatch
    parameter */
