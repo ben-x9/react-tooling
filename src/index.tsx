@@ -9,7 +9,9 @@ import * as Router from "./router"
 import { RouteToUri, UriToRoute } from "./router"
 import EditableText from "./EditableText"
 
-export { Nothing, Maybe, Type } from "./types"
+export * from "type-zoo"
+export * from "./types"
+
 import List from "./list"
 
 export { React, EditableText, JSX, List }
