@@ -18,7 +18,7 @@ export { React, EditableText, JSX, List }
 
 export type AnyAction = Redux.Action
 
-export type Dispatch = <A extends Redux.Action, E>(action: A, e?: React.SyntheticEvent<E>) => A
+export type Dispatch = <A extends Redux.Action, E>(action: A, e?: React.SyntheticEvent<E>) => void
 
 export type Dispatcher = {dispatch: Dispatch}
 
