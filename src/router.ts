@@ -6,12 +6,23 @@ const history = createHistory()
 export type UriToRoute<Route> = (uri: string) => Route
 export type RouteToUri<Route> = (route: Route) => string
 
+// Subtract the baseUri from window.location.pathname
+const getPath = (baseUri = "") => {
+  if (baseUri) baseUri += "/"
+  return window.location.pathname.slice(1).split("").reduce(
+    (result, char, i) =>
+      result + (char === baseUri[i] ? "" : char),
+    ""
+  )
+}
+
 export const load = <Route>(dispatch: ReactRedux.Dispatch<Redux.Action>,
-                            uriToRoute: UriToRoute<Route>) => {
-  dispatch(goto(uriToRoute(window.location.pathname.slice(1)), true))
-  return history.listen((location, action) => {
+                            uriToRoute: UriToRoute<Route>,
+                            baseUri = "") => {
+  dispatch(goto(uriToRoute(getPath(baseUri)), true))
+  return history.listen((_, action) => {
     if (action === "POP") dispatch(goto(
-      uriToRoute(location.pathname.slice(1)), true
+      uriToRoute(getPath(baseUri)), true
     ))
   })
 }
@@ -53,10 +64,12 @@ export const goto = <Route>(route: Route, viaHistory = false): Goto<Route> => ({
 export const update = <Route>(
                        state: State<Route>,
                        action: Action<Route>,
-                       routeToUri: RouteToUri<Route>): State<Route> => {
+                       routeToUri: RouteToUri<Route>,
+                       baseUri = ""): State<Route> => {
   switch (action.type) {
     case ActionType.Goto:
-      if (!action.viaHistory) history.push("/" + routeToUri(action.route))
+      if (!action.viaHistory)
+        history.push("/" + baseUri + "/" + routeToUri(action.route))
       return { ...state, route: action.route }
   }
 }

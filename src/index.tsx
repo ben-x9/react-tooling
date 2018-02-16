@@ -58,6 +58,7 @@ export const load = function
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
     module: NodeModule,
+    baseUri = "",
     rootHTMLElement= document.body.firstElementChild) {
 
   const wrappedUpdate = (state: State, action: Action) => {
@@ -66,7 +67,8 @@ export const load = function
        newState = Router.update(
         state,
         action,
-        routeToUri
+        routeToUri,
+        baseUri
       )
     }
     if (reactsTo(action)) {
@@ -103,7 +105,8 @@ export const load = function
     componentWillMount() {
       this.unloadRouter = Router.load(
         this.props.dispatch,
-        uriToRoute
+        uriToRoute,
+        baseUri
       )
     }
 
