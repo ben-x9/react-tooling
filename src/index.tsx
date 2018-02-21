@@ -41,7 +41,10 @@ export type GotoType = Router.ActionType
 export const GotoType = Router.ActionType.Goto
 export const goto = Router.goto
 
-export type Update<State, Action> = (state: State, action: Action) => State
+export type Update<S, A extends AnyAction> =
+  (state: S, action: A, dispatch: Dispatch) => S
+
+export type WrappedUpdate<S, A extends AnyAction> = (state: S, action: A) => S
 
 let store: Redux.Store<any>
 
@@ -61,7 +64,7 @@ export const load = function
     baseUri = "",
     rootHTMLElement= document.body.firstElementChild) {
 
-  const wrappedUpdate = (state: State, action: Action) => {
+  const wrappedUpdate = (state: State, action: Action & Dispatcher) => {
     let newState = state as Router.State<Route>
     if (Router.reactsTo<Route>(action)) {
        newState = Router.update(
@@ -72,7 +75,11 @@ export const load = function
       )
     }
     if (reactsTo(action)) {
-      newState = update(newState as State, action)
+      newState = update(
+        newState as State,
+        action,
+        action.dispatch
+      )
     }
     return newState
   }
@@ -144,19 +151,6 @@ export interface HotModule extends NodeModule {
   } | null
 }
 
-/* Wrap component update funtions in tests so we can leave out the dispatch
-   parameter */
-
-const actionWithDispatch = <A extends AnyAction>(action: A): A & Dispatcher =>
-  Object.assign({}, action, {
-    dispatch<A extends AnyAction>(a: A) {
-      return a
-    }
-  })
-
-type UpdateFn<S, A extends AnyAction> = (state: S, action: A & Dispatcher) => S
-export type WrappedUpdateFn<S, A extends AnyAction> = (state: S, action: A) => S
-
 export const withDispatch =
-  <S, A extends AnyAction> (f: UpdateFn<S, A>): WrappedUpdateFn<S, A> =>
-    (state, action) => f(state, actionWithDispatch(action))
+  <S, A extends AnyAction> (f: Update<S, A>): WrappedUpdate<S, A> =>
+    (state, action) => f(state, action, <A extends AnyAction>(a: A)  => a)
