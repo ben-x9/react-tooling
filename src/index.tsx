@@ -18,9 +18,17 @@ export { React, EditableText, JSX, List }
 
 export type AnyAction = Redux.Action
 
-export type Dispatch = <A extends Redux.Action, E>(action: A, e?: React.SyntheticEvent<E>) => void
+export type Dispatch = <E>(action: Redux.Action,
+                           e?: React.SyntheticEvent<E>) => void
 
 export type Dispatcher = {dispatch: Dispatch}
+
+export const lift = function <E>(
+                           dispatch: Dispatch,
+                           props: {}) {
+  return (action: Redux.Action, e?: React.SyntheticEvent<E>) =>
+    dispatch({ ...action, ...props }, e)
+}
 
 export class Component<P> extends React.PureComponent<P & Dispatcher> {
   constructor(props: P & Dispatcher) {
