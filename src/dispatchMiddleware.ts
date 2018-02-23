@@ -1,25 +1,38 @@
 import { MiddlewareAPI, Dispatch, Action } from "redux"
 import { defer } from "lodash"
 
-const dispatchMiddleware = <S, A extends Action>(store: MiddlewareAPI<S>) =>
-                                                (next: Dispatch<S>) =>
-                                                (action: A) => {
+let _replaying = false
+let _monitor: any = null
+
+export const flagReplaying = (state: boolean) => _replaying = state
+export const setMonitor = (monitor: any) => { _monitor = monitor }
+
+export const isReplaying = (): boolean =>
+  _replaying || _monitor.isTimeTraveling()
+
+export const dispatch = <S, A extends Action>(_: MiddlewareAPI<S>) =>
+                                             (next: Dispatch<S>) =>
+                                             (action: A) => {
   let syncActivityFinished = false
-  let actionQueue: any[] = []
+  let actionQueue: A[] = []
+
+  const withDispatch = (action: A) =>
+    Object.assign({}, action, { dispatchFromUpdate })
 
   function flushQueue() {
-    actionQueue.forEach(a => store.dispatch(a)) // flush queue
-    actionQueue = []
+    // flush queue
+    actionQueue = actionQueue.reduce((nextActionQueue, currentAction) => {
+      next(currentAction)
+      return nextActionQueue.slice(1)
+    }, actionQueue)
   }
 
-  function dispatch(action: A) {
-    actionQueue = actionQueue.concat([action])
-    if (syncActivityFinished) {
-      defer(() => flushQueue())
-    }
+  function dispatchFromUpdate(action: A) {
+    if (!isReplaying()) actionQueue.push(withDispatch(action))
+    if (syncActivityFinished) defer(() => flushQueue())
   }
 
-  const actionWithDispatch = Object.assign({}, action, { dispatch })
+  const actionWithDispatch = withDispatch(action)
 
   next(actionWithDispatch)
   syncActivityFinished = true
@@ -28,4 +41,3 @@ const dispatchMiddleware = <S, A extends Action>(store: MiddlewareAPI<S>) =>
   return actionWithDispatch
 }
 
-export default dispatchMiddleware

@@ -18,8 +18,9 @@ const getPath = (baseUri = "") => {
 
 export const load = <Route>(dispatch: ReactRedux.Dispatch<Redux.Action>,
                             uriToRoute: UriToRoute<Route>,
-                            baseUri = "") => {
-  dispatch(goto(uriToRoute(getPath(baseUri)), true))
+                            baseUri = "",
+                            isHotReloading = false) => {
+  if (!isHotReloading) dispatch(goto(uriToRoute(getPath(baseUri)), true))
   return history.listen((_, action) => {
     if (action === "POP") dispatch(goto(
       uriToRoute(getPath(baseUri)), true

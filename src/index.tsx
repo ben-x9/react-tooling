@@ -4,10 +4,11 @@ import * as Redux from "redux"
 import { createStore, applyMiddleware, compose } from "redux"
 import { Provider, connect } from "react-redux"
 import { AppContainer } from "react-hot-loader"
-import dispatch from "./dispatchMiddleware"
+import { dispatch, flagReplaying, setMonitor, isReplaying } from "./dispatchMiddleware"
 import * as Router from "./router"
 import { RouteToUri, UriToRoute } from "./router"
 import EditableText from "./EditableText"
+import { defer } from "lodash"
 
 export * from "type-zoo"
 export * from "./types"
@@ -72,7 +73,11 @@ export const load = function
     baseUri = "",
     rootHTMLElement= document.body.firstElementChild) {
 
-  const wrappedUpdate = (state: State, action: Action & Dispatcher) => {
+  const wrappedUpdate = (state: State,
+                         action: Action & {dispatchFromUpdate: Dispatch}) => {
+    if (isReplaying() && (action as any).noReplay)
+      return state
+    console.log(action)
     let newState = state as Router.State<Route>
     if (Router.reactsTo<Route>(action)) {
        newState = Router.update(
@@ -86,7 +91,7 @@ export const load = function
       newState = update(
         newState as State,
         action,
-        action.dispatch
+        action.dispatchFromUpdate
       )
     }
     return newState
@@ -94,16 +99,24 @@ export const load = function
 
   // Initalize the store
 
-  const composeEnhancers = (window as any).
-    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+  const composeEnhancers =
+    (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+      getMonitor: (monitor: any) => { setMonitor(monitor) }
+    }) || compose
 
-  if (store) {
+  const isHotReloading = store ? true : false
+
+  if (isHotReloading) {
+    flagReplaying(true)
     store.replaceReducer(wrappedUpdate)
+    defer(() => flagReplaying(false))
   } else {
     store = createStore(
       wrappedUpdate,
       initialState,
-      composeEnhancers(applyMiddleware(dispatch))
+      composeEnhancers(
+        applyMiddleware(dispatch)
+      )
     )
   }
 
@@ -121,7 +134,8 @@ export const load = function
       this.unloadRouter = Router.load(
         this.props.dispatch,
         uriToRoute,
-        baseUri
+        baseUri,
+        isHotReloading
       )
     }
 
