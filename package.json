@@ -1,6 +1,6 @@
 {
   "name": "reactive-elm",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "React with the Elm Architecture",

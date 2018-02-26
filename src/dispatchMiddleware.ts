@@ -8,7 +8,7 @@ export const flagReplaying = (state: boolean) => _replaying = state
 export const setMonitor = (monitor: any) => { _monitor = monitor }
 
 export const isReplaying = (): boolean =>
-  _replaying || _monitor.isTimeTraveling()
+  _replaying || _monitor && _monitor.isTimeTraveling()
 
 export const dispatch = <S, A extends Action>(_: MiddlewareAPI<S>) =>
                                              (next: Dispatch<S>) =>
