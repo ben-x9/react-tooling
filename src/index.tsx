@@ -20,7 +20,7 @@ export { React, EditableText, JSX, List }
 export type AnyAction = Redux.Action
 
 export type Dispatch = <E>(action: Redux.Action,
-                           e?: React.SyntheticEvent<E>) => void
+                           eventToStop?: React.SyntheticEvent<E>) => void
 
 export type Dispatcher = {dispatch: Dispatch}
 
@@ -148,8 +148,9 @@ export const load = function
     render() {
       // Force TS to see RootJSXElement as an SFC due to this bug:
       // https://github.com/Microsoft/TypeScript/issues/15463
-      const Elem = RootJSXElement as any as (state: State) => JSX.Element
-      return <Elem {...this.props as State}/>
+      const Elem = RootJSXElement as any as
+        (props: State & Dispatcher) => JSX.Element
+      return <Elem {...this.props as State} dispatch={this.dispatch} />
     }
   }
 
