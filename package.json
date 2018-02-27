@@ -19,15 +19,6 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@types/history": "^4.6.2",
-    "@types/lodash": "^4.14.88",
-    "@types/node": "^8.0.54",
-    "@types/react": "^16.0.27",
-    "@types/react-dom": "^16.0.3",
-    "@types/react-hot-loader": "^3.0.5",
-    "@types/react-redux": "^5.0.14",
-    "@types/redux": "^3.6.0",
-    "@types/redux-devtools-extension": "^2.13.2",
     "history": "^4.7.2",
     "lodash-es": "^4.17.4",
     "moize": "^4.0.4",
@@ -39,6 +30,15 @@
     "type-zoo": "^1.2.1"
   },
   "devDependencies": {
+    "@types/history": "^4.6.2",
+    "@types/lodash-es": "^4.14.88",
+    "@types/node": "^8.0.54",
+    "@types/react": "^16.0.27",
+    "@types/react-dom": "^16.0.3",
+    "@types/react-hot-loader": "^3.0.5",
+    "@types/react-redux": "^5.0.14",
+    "@types/redux": "^3.6.0",
+    "@types/redux-devtools-extension": "^2.13.2",
     "tslint": "^5.8.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "^2.6.2"
