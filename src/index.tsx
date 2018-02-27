@@ -179,3 +179,6 @@ export interface HotModule extends NodeModule {
 export const withDispatch =
   <S, A extends AnyAction> (f: Update<S, A>): WrappedUpdate<S, A> =>
     (state, action) => f(state, action, <A extends AnyAction>(a: A)  => a)
+
+export const exists = (it: any) =>
+  it !== undefined && it !== null
