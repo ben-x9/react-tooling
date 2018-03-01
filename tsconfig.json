@@ -19,7 +19,7 @@
     "emitDecoratorMetadata": true,
     "pretty": true,
     "declaration": true,
-    "module": "commonjs",
+    "module": "es6",
     "moduleResolution": "node",
     "noResolve": false,
     "outDir": "./dist",
