@@ -14,8 +14,9 @@ export * from "type-zoo"
 export * from "./types"
 
 import List from "./list"
+import moize from "moize"
 
-export { React, EditableText, JSX, List }
+export { React, EditableText, JSX, List, moize }
 
 export type AnyAction = Redux.Action
 
