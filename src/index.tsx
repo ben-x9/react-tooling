@@ -46,6 +46,19 @@ export class Component<P> extends React.PureComponent<P & Dispatcher> {
   }
 }
 
+export enum ActionType {
+  Init = "ReactiveElm/Init"
+}
+export type InitType = ActionType
+export const InitType = ActionType.Init
+
+export interface Init {
+  type: "ReactiveElm/Init"
+}
+export const init = {
+  type: "ReactiveElm/Init"
+}
+
 export type Goto<Route> = Router.Action<Route>
 export type GotoType = Router.ActionType
 export const GotoType = Router.ActionType.Goto
@@ -78,7 +91,6 @@ export const load = function
                          action: Action & {dispatchFromUpdate: Dispatch}) => {
     if (isReplaying() && (action as any).noReplay)
       return state
-    console.log(action)
     let newState = state as Router.State<Route>
     if (Router.reactsTo<Route>(action)) {
        newState = Router.update(
@@ -140,6 +152,8 @@ export const load = function
         baseUri,
         isHotReloading
       )
+      if (!isHotReloading)
+        this.props.dispatch(init)
     }
 
     componentWillUnmount() {
