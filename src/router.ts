@@ -70,7 +70,11 @@ export const update = <Route>(
   switch (action.type) {
     case ActionType.Goto:
       if (!action.viaHistory)
-        history.push("/" + baseUri + "/" + routeToUri(action.route))
+        history.push(
+          "/" +
+          (baseUri ? baseUri + "/" : "") +
+          routeToUri(action.route)
+        )
       return { ...state, route: action.route }
   }
 }
