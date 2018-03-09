@@ -20,10 +20,11 @@ export const load = <Route>(dispatch: ReactRedux.Dispatch<Redux.Action>,
                             uriToRoute: UriToRoute<Route>,
                             baseUri = "",
                             isHotReloading = false) => {
-  if (!isHotReloading) dispatch(goto(uriToRoute(getPath(baseUri)), true))
+  if (!isHotReloading)
+    dispatch(goto(uriToRoute(getPath(baseUri)), { viaHistory: true }))
   return history.listen((_, action) => {
     if (action === "POP") dispatch(goto(
-      uriToRoute(getPath(baseUri)), true
+      uriToRoute(getPath(baseUri)), { viaHistory: true }
     ))
   })
 }
@@ -51,15 +52,20 @@ export const reactsTo = <Route>(action: Redux.Action):
   }
 }
 
+export interface GotoOpts {
+  viaHistory?: boolean
+  replace?: boolean
+}
+
 export interface Goto<Route> {
   type: ActionType.Goto
   route: Route,
-  viaHistory: boolean
+  opts: GotoOpts
 }
-export const goto = <Route>(route: Route, viaHistory = false): Goto<Route> => ({
+export const goto = <Route>(route: Route, opts: GotoOpts = {}): Goto<Route> => ({
   type: ActionType.Goto,
   route,
-  viaHistory
+  opts
 })
 
 export const update = <Route>(
@@ -69,12 +75,15 @@ export const update = <Route>(
                        baseUri = ""): State<Route> => {
   switch (action.type) {
     case ActionType.Goto:
-      if (!action.viaHistory)
-        history.push(
+      if (!action.opts.viaHistory) {
+        const historyAction = action.opts.replace ?
+          history.replace : history.push
+        historyAction(
           "/" +
           (baseUri ? baseUri + "/" : "") +
           routeToUri(action.route)
         )
+      }
       return { ...state, route: action.route }
   }
 }
