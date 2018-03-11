@@ -1,4 +1,4 @@
-import { MiddlewareAPI, Dispatch, Action } from "redux"
+import {MiddlewareAPI, Dispatch, Action} from "redux"
 import defer from "lodash-es/defer"
 
 let _replaying = false
@@ -17,7 +17,7 @@ export const dispatch = <S, A extends Action>(_: MiddlewareAPI<S>) =>
   let actionQueue: A[] = []
 
   const withDispatch = (action: A) =>
-    Object.assign({}, action, { dispatchFromUpdate })
+    Object.assign({}, action, {dispatchFromUpdate})
 
   function flushQueue() {
     // flush queue

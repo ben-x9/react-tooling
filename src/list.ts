@@ -21,6 +21,6 @@ const get = <T extends {}>(list: List<T>, where: Partial<T>) =>
 const reverse = <T>(list: List<T>): List<T> => list.slice().reverse()
 
 type List<T> = ReadonlyArray<T>
-const List = { set, get, reverse }
+const List = {set, get, reverse}
 
 export default List

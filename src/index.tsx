@@ -1,12 +1,12 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import * as Redux from "redux"
-import { createStore, applyMiddleware, compose } from "redux"
-import { Provider, connect } from "react-redux"
-import { AppContainer } from "react-hot-loader"
-import { dispatch, flagReplaying, setMonitor, isReplaying } from "./dispatchMiddleware"
+import {createStore, applyMiddleware, compose} from "redux"
+import {Provider, connect} from "react-redux"
+import {AppContainer} from "react-hot-loader"
+import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddleware"
 import * as Router from "./router"
-import { RouteToUri, UriToRoute } from "./router"
+import {RouteToUri, UriToRoute} from "./router"
 import EditableText from "./EditableText"
 import defer from "lodash-es/defer"
 
@@ -16,7 +16,7 @@ export * from "./types"
 import List from "./list"
 import moize from "moize"
 
-export { React, EditableText, JSX, List, moize }
+export {React, EditableText, JSX, List, moize}
 
 export type AnyAction = Redux.Action
 
@@ -29,7 +29,7 @@ export const lift = function <E>(
                            dispatch: Dispatch,
                            props: {}) {
   return (action: Redux.Action, e?: React.SyntheticEvent<E>) =>
-    dispatch({ ...action, ...props }, e)
+    dispatch({...action, ...props}, e)
 }
 
 export class Component<P> extends React.PureComponent<P & Dispatcher> {
