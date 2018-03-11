@@ -8,7 +8,7 @@ import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddle
 import * as Router from "./router"
 import {RouteToUri, UriToRoute} from "./router"
 import EditableText from "./EditableText"
-import defer from "lodash-es/defer"
+import defer from "lodash/defer"
 
 export * from "type-zoo"
 export * from "./types"
