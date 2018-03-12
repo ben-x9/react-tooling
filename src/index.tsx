@@ -16,6 +16,8 @@ export * from "./types"
 import List from "./list"
 import moize from "moize"
 
+export type JSXElement = React.ReactElement<any>
+
 export {React, EditableText, JSX, List, moize}
 
 export type AnyAction = Redux.Action
@@ -79,7 +81,7 @@ export const load = function
     reactsTo: (action: AnyAction) => action is Action,
     update: Update<State, Action>,
     RootJSXElement:
-      ((state: State) => JSX.Element) |
+      ((state: State) => JSXElement) |
       { new(state: State & Dispatcher): Component<State> },
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
@@ -130,7 +132,7 @@ export const load = function
       wrappedUpdate,
       initialState,
       composeEnhancers(
-        applyMiddleware(dispatch)
+        applyMiddleware(dispatch as any)
       )
     )
   }
