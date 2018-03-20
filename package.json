@@ -1,10 +1,10 @@
 {
-  "name": "reactive-elm",
+  "name": "hyper-reactive",
   "version": "0.7.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "description": "React with the Elm Architecture",
-  "repository": "github.com/ben-x9/reactive-elm",
+  "description": "The easiest way to get started with React",
+  "repository": "github.com/ben-x9/hyper-reactive",
   "author": "Ben Lambert",
   "license": "MIT",
   "keywords": [

@@ -22,15 +22,16 @@ export {React, EditableText, JSX, List, moize}
 
 export type AnyAction = Redux.Action
 
-export type Dispatch = <E>(action: Redux.Action,
-                           eventToStop?: React.SyntheticEvent<E>) => void
+export type Dispatch = <E>(
+  action: Redux.Action,
+  eventToStop?: React.SyntheticEvent<E> | Event) => void
 
 export type Dispatcher = {dispatch: Dispatch}
 
 export const lift = function <E>(
                            dispatch: Dispatch,
                            props: {}) {
-  return (action: Redux.Action, e?: React.SyntheticEvent<E>) =>
+  return (action: Redux.Action, e?: React.SyntheticEvent<E> | Event) =>
     dispatch({...action, ...props}, e)
 }
 
@@ -42,7 +43,7 @@ export class Component<P> extends React.PureComponent<P & Dispatcher> {
 
   dispatch<A extends Redux.Action, E>(
            action: A,
-           eventToStop?: React.SyntheticEvent<E>) {
+           eventToStop?: React.SyntheticEvent<E> | Event) {
     if (eventToStop) eventToStop.stopPropagation()
     return this.props.dispatch(action)
   }

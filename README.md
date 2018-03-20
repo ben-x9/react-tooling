@@ -1,2 +1,2 @@
-# reactive-elm
-React with the Elm Architecture
+# hyper-reactive
+A starter kit for React
