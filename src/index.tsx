@@ -200,3 +200,8 @@ export const withDispatch =
 
 export const exists = (it: any) =>
   it !== undefined && it !== null
+
+export function log<T>(value: T, ...others: any[]) {
+  console.log(...others.concat(value))
+  return value
+}
