@@ -54,7 +54,7 @@ export const reactsTo = <Route>(action: Redux.Action):
 
 export interface GotoOpts {
   viaHistory?: boolean
-  replace?: boolean
+  noBack?: boolean
 }
 
 export interface Goto<Route> {
@@ -76,7 +76,7 @@ export const update = <Route>(
   switch (action.type) {
     case ActionType.Goto:
       if (!action.opts.viaHistory) {
-        const historyAction = action.opts.replace ?
+        const historyAction = action.opts.noBack ?
           history.replace : history.push
         historyAction(
           "/" +
