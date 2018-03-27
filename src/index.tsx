@@ -205,3 +205,9 @@ export function log<T>(value: T, ...others: any[]) {
   console.log(...others.concat(value))
   return value
 }
+
+// This is a bit of a hack, but useful
+// https://github.com/Microsoft/TypeScript/issues/13723#issuecomment-275730246
+export type Mutable<T extends { [x: string]: any }, K extends string> = {
+  [P in K]: T[P];
+}
