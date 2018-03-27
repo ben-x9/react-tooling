@@ -30,7 +30,10 @@ const get = <T extends {}>(list: List<T>, where: Partial<T>) =>
 
 const reverse = <T>(list: List<T>): List<T> => list.slice().reverse()
 
+const contains = <T>(list: List<T>, item: T) =>
+  list.findIndex(x => x === item) >= 0
+
 type List<T> = ReadonlyArray<T>
-const List = {set, get, reverse}
+const List = {set, get, reverse, contains}
 
 export default List

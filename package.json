@@ -1,6 +1,6 @@
 {
   "name": "hyper-reactive",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "The easiest way to get started with React",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@types/history": "^4.6.2",
-    "@types/lodash": "^4.14.104",
+    "@types/lodash": "^4.14.106",
     "@types/node": "^8.0.54",
     "@types/react": "^16.0.27",
     "@types/react-dom": "^16.0.3",
