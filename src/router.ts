@@ -20,7 +20,7 @@ export const load = <Route>(dispatch: ReactRedux.Dispatch<Redux.Action>,
                             uriToRoute: UriToRoute<Route>,
                             baseUri = "",
                             isHotReloading = false) => {
-  if (!isHotReloading)
+  if (!isHotReloading && !(window as any).IS_CORDOVA)
     dispatch(goto(uriToRoute(getPath(baseUri)), {viaHistory: true}))
   return history.listen((_, action) => {
     if (action === "POP") dispatch(goto(

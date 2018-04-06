@@ -1,6 +1,6 @@
 {
   "name": "hyper-reactive",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "The easiest way to get started with React",
@@ -29,6 +29,7 @@
     "@types/react-redux": "^5.0.14",
     "@types/redux": "^3.6.0",
     "@types/redux-devtools-extension": "^2.13.2",
+    "@types/remote-redux-devtools": "^0.5.2",
     "history": "^4.7.2",
     "lodash": "^4.17.5",
     "moize": "^4.0.4",
@@ -40,6 +41,7 @@
     "type-zoo": "^1.2.1"
   },
   "devDependencies": {
+    "remote-redux-devtools": "^0.5.12",
     "tslint": "^5.8.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "^2.7.2"

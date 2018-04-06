@@ -2,6 +2,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import * as Redux from "redux"
 import {createStore, applyMiddleware, compose} from "redux"
+import {composeWithDevTools} from "remote-redux-devtools"
 import {Provider, connect} from "react-redux"
 import {AppContainer} from "react-hot-loader"
 import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddleware"
@@ -74,6 +75,26 @@ export type WrappedUpdate<S, A extends AnyAction> = (state: S, action: A) => S
 
 let store: Redux.Store<any>
 
+export interface Opts {
+  baseUri?: string,
+  rootHTMLElement?: Element | null,
+  remoteDevTools?: {
+    name: string
+    hostname: string,
+    port: number
+  }
+}
+
+const defaultOpts: Opts = {
+  baseUri: "",
+  rootHTMLElement: document.body.firstElementChild,
+  remoteDevTools: {
+    name: "My React App",
+    hostname: "localhost",
+    port: 8000
+  }
+}
+
 export const load = function
     <State extends Router.State<Route>,
      Action extends Redux.Action,
@@ -87,8 +108,12 @@ export const load = function
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
     module: NodeModule,
-    baseUri = "",
-    rootHTMLElement= document.body.firstElementChild) {
+    opts = defaultOpts) {
+
+  const baseUri = opts.baseUri || defaultOpts.baseUri
+  const rootHTMLElement =
+    opts.rootHTMLElement || defaultOpts.rootHTMLElement as Element | null
+  const remoteDevTools = opts.remoteDevTools || defaultOpts.remoteDevTools
 
   const wrappedUpdate = (state: State,
                          action: Action & {dispatchFromUpdate: Dispatch}) => {
@@ -115,12 +140,21 @@ export const load = function
 
   // Initalize the store
 
+  // const composeEnhancers =
+  //   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+  //     (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+  //       getMonitor: (monitor: any) => { setMonitor(monitor) }
+  //     }) :
+  //     compose
+
   const composeEnhancers =
-    (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-      (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+    remoteDevTools
+    ? composeWithDevTools(Object.assign(remoteDevTools, {realtime: true}))
+    : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
         getMonitor: (monitor: any) => { setMonitor(monitor) }
-      }) :
-      compose
+      })
+    : compose
 
   const isHotReloading = store ? true : false
 
