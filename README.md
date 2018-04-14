@@ -1,2 +1,2 @@
-# hyper-reactive
-A starter kit for React
+# react-tool-kit
+A toolkit for React

@@ -1,10 +1,10 @@
 {
-  "name": "hyper-reactive",
+  "name": "@ben-x9/react-toolkit",
   "version": "0.9.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "description": "The easiest way to get started with React",
-  "repository": "github.com/ben-x9/hyper-reactive",
+  "description": "A toolkit for React",
+  "repository": "github.com/ben-x9/react-toolkit",
   "author": "Ben Lambert",
   "license": "MIT",
   "keywords": [
