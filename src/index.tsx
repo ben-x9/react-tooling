@@ -82,7 +82,8 @@ export interface Opts {
     name: string
     hostname: string,
     port: number
-  }
+  },
+  onLoad: () => any
 }
 
 const defaultOpts: Opts = {
@@ -92,7 +93,8 @@ const defaultOpts: Opts = {
     name: "My React App",
     hostname: "localhost",
     port: 8000
-  }
+  },
+  onLoad: () => null
 }
 
 export const load = function
@@ -170,6 +172,7 @@ export const load = function
         applyMiddleware(dispatch as any)
       )
     )
+    opts.onLoad()
   }
 
   class Index extends Component<any> {
