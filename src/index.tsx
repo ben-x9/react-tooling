@@ -89,11 +89,11 @@ export interface Opts {
 const defaultOpts: Opts = {
   baseUri: "",
   rootHTMLElement: document.body.firstElementChild,
-  remoteDevTools: {
-    name: "My React App",
-    hostname: "localhost",
-    port: 8000
-  },
+  // remoteDevTools: {
+  //   name: "My React App",
+  //   hostname: "localhost",
+  //   port: 8000
+  // },
   onLoad: () => null
 }
 
