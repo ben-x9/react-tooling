@@ -1,10 +1,10 @@
 {
-  "name": "react-all-in-one",
+  "name": "react-tooling",
   "version": "0.9.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "description": "An all-in-one toolkit for building React apps",
-  "repository": "github.com/ben-x9/react-all-in-one",
+  "description": "Tooling for React",
+  "repository": "github.com/ben-x9/react-tooling",
   "author": "Ben Lambert",
   "license": "MIT",
   "keywords": [
