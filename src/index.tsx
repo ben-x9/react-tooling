@@ -83,7 +83,7 @@ export interface Opts {
     hostname: string,
     port: number
   },
-  onLoad: () => any
+  onLoad?: () => any
 }
 
 const defaultOpts: Opts = {
@@ -172,7 +172,7 @@ export const load = function
         applyMiddleware(dispatch as any)
       )
     )
-    opts.onLoad()
+    if (opts.onLoad) opts.onLoad()
   }
 
   class Index extends Component<any> {
