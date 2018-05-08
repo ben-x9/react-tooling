@@ -1,9 +1,21 @@
 import map from "lodash/map"
 import find from "lodash/find"
 
-const propsMatch = <T extends {}, U extends T>(a: U, b: T) => {
-  for (const key in b) {
-    if (b[key] !== a[key]) {
+type Selector<T> =
+  Partial<T> |
+  number |
+  ((item: T, index: number, list: List<T>) => boolean)
+
+const match = <T>(selector: Selector<T>, item: T, index: number, list: List<T>): boolean =>
+  typeof selector === "number"
+    ? selector === index :
+  typeof selector === "function"
+    ? selector(item, index, list)
+    : propsMatch(item, selector)
+
+const propsMatch = <U extends {}, T extends U>(record: T, partial: U) => {
+  for (const key in partial) {
+    if (partial[key] !== record[key]) {
       return false
     }
   }
@@ -15,14 +27,14 @@ const getNewValue = <T>(newValue: T | ((oldValue: T) => T), oldValue: T) =>
 
 const set = <T extends {}>(
     list: List<T>,
-    where: Partial<T> | number,
+    where: Selector<T>,
     value: T | ((oldValue: T) => T)): List<T> =>
   map(
     list,
     (item, i) =>
-      (typeof where === "number" ? where === i : propsMatch(item, where)) ?
-        getNewValue(value, item) :
-        item
+      match(where, item, i, list)
+        ? getNewValue(value, item)
+        : item
   )
 
 const get = <T extends {}>(list: List<T>, where: Partial<T>) =>
