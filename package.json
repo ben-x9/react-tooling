@@ -17,7 +17,8 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "prepare": "npm run build",
-    "check": "tsc"
+    "check": "tsc",
+    "compile": "tsc"
   },
   "dependencies": {
     "@types/history": "^4.6.2",
