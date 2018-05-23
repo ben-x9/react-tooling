@@ -69,11 +69,11 @@ export type GotoType = Router.ActionType
 export const GotoType = Router.ActionType.Goto
 export const goto = Router.goto
 
-export type Update<S, A extends AnyAction> =
-  (state: S, action: A, dispatch: Dispatch, ...readOnlyProps: any[]) => S
+export type Update<S extends {}, A extends AnyAction, P extends {}> =
+  (state: S, action: A, dispatch: Dispatch, readOnlyProps?: P) => S
 
-export type WrappedUpdate<S, A extends AnyAction> =
-  (state: S, action: A, ...readOnlyProps: any[]) => S
+export type WrappedUpdate<S extends {}, A extends AnyAction, P extends{}> =
+  (state: S, action: A, readOnlyProps?: P) => S
 
 let store: Redux.Store<any>
 
@@ -102,10 +102,11 @@ const defaultOpts: Opts = {
 export const load = function
     <State extends Router.State<Route>,
      Action extends Redux.Action,
+     ReadOnlyProps extends {},
      Route>(
     initialState: State,
     reactsTo: (action: AnyAction) => action is Action,
-    update: Update<State, Action>,
+    update: Update<State, Action, ReadOnlyProps>,
     RootJSXElement:
       ((state: State) => JSXElement) |
       { new(state: State & Dispatcher): Component<State> },
@@ -233,10 +234,10 @@ export interface HotModule extends NodeModule {
   } | null
 }
 
-export const withDispatch =
-  <S, A extends AnyAction> (f: Update<S, A>): WrappedUpdate<S, A> =>
-    (state, action, ...readOnlyProps) =>
-      f(state, action, <A extends AnyAction>(a: A)  => a, ...readOnlyProps)
+export const withDispatch = <S extends {}, A extends AnyAction, P extends {}>
+  (f: Update<S, A, P>): WrappedUpdate<S, A, P> =>
+    (state, action, readOnlyProps) =>
+      f(state, action, <A extends AnyAction>(a: A) => a, readOnlyProps)
 
 export const exists = (it: any) =>
   it !== undefined && it !== null
