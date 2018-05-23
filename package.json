@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.10.7",
+  "version": "0.10.8",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
@@ -40,8 +40,7 @@
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "remote-redux-devtools": "^0.5.12",
-    "type-zoo": "^1.2.1",
-    "babel-polyfill": "^6.26.0"
+    "type-zoo": "^1.2.1"
   },
   "devDependencies": {
     "tslint": "^5.8.0",
