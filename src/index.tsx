@@ -70,7 +70,7 @@ export const GotoType = Router.ActionType.Goto
 export const goto = Router.goto
 
 export type Update<S, A extends AnyAction> =
-  (state: S, action: A, dispatch: Dispatch, readOnlyProps?: any[]) => S
+  (state: S, action: A, dispatch: Dispatch, ...readOnlyProps: any[]) => S
 
 export type WrappedUpdate<S, A extends AnyAction> = (state: S, action: A) => S
 
