@@ -16,6 +16,7 @@ export * from "./types"
 
 import List from "./list"
 import moize from "moize"
+import {F1} from "./types"
 
 export type JSXElement = React.ReactElement<any>
 
@@ -251,3 +252,15 @@ export function log<T>(value: T, ...others: any[]) {
 export type Mutable<T extends { [x: string]: any }, K extends string> = {
   [P in K]: T[P];
 }
+
+export type ActionOf = string | F1<AnyAction, boolean>
+
+export const isActionOf = <A extends AnyAction>(actionsOf: List<ActionOf>) =>
+  (action: AnyAction): action is A => {
+    return actionsOf.some(actionOf => {
+      if (typeof actionOf === "string")
+        return action.type === actionOf
+      else
+        return actionOf(action)
+    })
+  }
