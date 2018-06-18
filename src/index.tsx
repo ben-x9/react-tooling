@@ -255,7 +255,7 @@ export type Mutable<T extends { [x: string]: any }, K extends string> = {
 
 export type ActionOf = string | F1<AnyAction, boolean>
 
-export const isActionOf = <A extends AnyAction>(actionsOf: List<ActionOf>) =>
+export const isActionOf = <A extends AnyAction>(...actionsOf: ActionOf[]) =>
   (action: AnyAction): action is A => {
     return actionsOf.some(actionOf => {
       if (typeof actionOf === "string")

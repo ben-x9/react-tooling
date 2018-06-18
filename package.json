@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.10.9",
+  "version": "0.10.10",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
