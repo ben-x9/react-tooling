@@ -68,7 +68,7 @@ export const init = {
 export type Goto<Route> = Router.Action<Route>
 export type GotoType = Router.ActionType
 export const GotoType = Router.ActionType.Goto
-export const goto = Router.goto
+export const Goto = Router.Goto
 
 export type Update<S extends {}, A extends AnyAction, P extends {}> =
   (state: S, action: A, dispatch: Dispatch, readOnlyProps?: P) => S

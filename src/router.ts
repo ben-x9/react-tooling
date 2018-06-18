@@ -21,9 +21,9 @@ export const load = <Route>(dispatch: ReactRedux.Dispatch<Redux.Action>,
                             baseUri = "",
                             isHotReloading = false) => {
   if (!isHotReloading && !(window as any).IS_CORDOVA)
-    dispatch(goto(uriToRoute(getPath(baseUri)), {viaHistory: true}))
+    dispatch(Goto(uriToRoute(getPath(baseUri)), {viaHistory: true}))
   return history.listen((_, action) => {
-    if (action === "POP") dispatch(goto(
+    if (action === "POP") dispatch(Goto(
       uriToRoute(getPath(baseUri)), {viaHistory: true}
     ))
   })
@@ -62,7 +62,7 @@ export interface Goto<Route> {
   route: Route,
   opts: GotoOpts
 }
-export const goto = <Route>(route: Route, opts: GotoOpts = {}): Goto<Route> => ({
+export const Goto = <Route>(route: Route, opts: GotoOpts = {}): Goto<Route> => ({
   type: ActionType.Goto,
   route,
   opts
