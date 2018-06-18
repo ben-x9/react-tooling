@@ -11,7 +11,6 @@ import {RouteToUri, UriToRoute} from "./router"
 import EditableText from "./EditableText"
 import defer from "lodash/defer"
 
-export * from "type-zoo"
 export * from "./types"
 
 import List from "./list"
@@ -21,6 +20,8 @@ import {F1} from "./types"
 export type JSXElement = React.ReactElement<any>
 
 export {React, EditableText, JSX, List, moize}
+
+export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 
 export type AnyAction = Redux.Action
 

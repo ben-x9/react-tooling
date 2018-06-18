@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.10.10",
+  "version": "0.11.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
@@ -45,6 +45,6 @@
   "devDependencies": {
     "tslint": "^5.8.0",
     "tslint-eslint-rules": "^4.1.1",
-    "typescript": "^2.7.2"
+    "typescript": "^2.9.2"
   }
 }
