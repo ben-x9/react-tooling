@@ -86,7 +86,8 @@ export interface Opts {
     hostname: string,
     port: number
   },
-  onLoad?: () => any
+  onLoad?: () => any,
+  onHMR?: () => any
 }
 
 const defaultOpts: Opts = {
@@ -100,6 +101,10 @@ const defaultOpts: Opts = {
   onLoad: () => null
 }
 
+export type View<State> =
+  ((state: State) => JSXElement) |
+  { new(state: State & Dispatcher): Component<State> }
+
 export const load = function
     <State extends Router.State<Route>,
      Action extends Redux.Action,
@@ -108,9 +113,7 @@ export const load = function
     initialState: State,
     reactsTo: (action: AnyAction) => action is Action,
     update: Update<State, Action, ReadOnlyProps>,
-    RootJSXElement:
-      ((state: State) => JSXElement) |
-      { new(state: State & Dispatcher): Component<State> },
+    RootView: View<State>,
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
     module: NodeModule,
@@ -207,7 +210,7 @@ export const load = function
     render() {
       // Force TS to see RootJSXElement as an SFC due to this bug:
       // https://github.com/Microsoft/TypeScript/issues/15463
-      const Elem = RootJSXElement as any as
+      const Elem = RootView as any as
         (props: State & Dispatcher) => JSX.Element
       return <Elem {...this.props as State} dispatch={this.dispatch} />
     }
@@ -225,7 +228,10 @@ export const load = function
   )
 
   const mod = module as HotModule
-  if (mod.hot) mod.hot.accept()
+  if (mod.hot) {
+    mod.hot.accept()
+    if (opts.onHMR) mod.hot.dispose(opts.onHMR())
+  }
 }
 
 export interface HotModule extends NodeModule {
