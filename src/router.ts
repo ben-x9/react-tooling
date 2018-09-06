@@ -45,7 +45,6 @@ export const load = <Route>(dispatch: DispatchUpdate<Route>,
                             baseUri = "",
                             isHotReloading = false) => {
   const setRoute = buildSetRoute(routeToUri, baseUri)
-  console.log(setRoute.name)
   if (!isHotReloading && !(window as any).IS_CORDOVA)
     dispatch(
       setRoute(

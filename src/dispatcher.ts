@@ -80,7 +80,6 @@ export const createDispatch = <S, S1>(
   name?: string,
   noReplay?: boolean
 ) => {
-  console.log(update.name)
   parentDispatch(
     state => {
       const cont = update(lens.get(state))

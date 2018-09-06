@@ -7,14 +7,12 @@ import {Provider, connect} from "react-redux"
 import {AppContainer} from "react-hot-loader"
 import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddleware"
 import * as Router from "./router"
+import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
 export * from "./types"
 
 import moize from "moize"
 import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch as rtCreateDispatch, createFromReduxDispatch, ActionDispatch} from "./dispatcher"
-
-
-const defer = (f: () => void) => setTimeout(f, 0)
 
 export type JSXElement = React.ReactElement<any>
 
@@ -278,12 +276,3 @@ export function log<T>(value: T, ...others: any[]) {
 export type Mutable<T extends { [x: string]: any }, K extends string> = {
   [P in K]: T[P];
 }
-
-/*
- hooks
- {
-   onInit: (state: State): State
-   onRouteChanged: (route: Route): Route
- }
-*/
-
