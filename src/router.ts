@@ -15,6 +15,8 @@ const getPath = (baseUri = "") => {
   )
 }
 
+export const SetRouteType = "SetRoute"
+
 export type SetRouteOpts = {
   viaHistory?: boolean,
   noBack?: boolean
@@ -52,7 +54,7 @@ export const load = <Route>(dispatch: DispatchUpdate<Route>,
         ),
         {viaHistory: true}
       ),
-      "SetRoute"
+      SetRouteType
     )
   return history.listen((_, action) => {
     if (action === "POP") dispatch(
@@ -62,7 +64,7 @@ export const load = <Route>(dispatch: DispatchUpdate<Route>,
         ),
         {viaHistory: true}
       ),
-      "SetRoute"
+      SetRouteType
     )
   })
 }

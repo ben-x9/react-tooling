@@ -82,15 +82,22 @@ const defaultOpts: Opts = {
   onLoad: () => null
 }
 
-export type RootDispatcher<State, Route> = {
-  setRoute: DispatchUpdate<Route>
-} & Dispatcher<State>
+export type SetRoute<Route> = {
+  setRoute: (route: Route, opts?: Router.SetRouteOpts) => void
+}
+
+export type RootDispatcher<State, Route> = SetRoute<Route> & Dispatcher<State>
 
 export type RootView<State, Route> =
   ((state: State) => JSXElement) | {new(state: State & Dispatcher<State>): Component<State>} | {new(state: State & RootDispatcher<State, Route>): Component<State>}
 
 export type View<State> =
   ((state: State) => JSXElement) | {new(state: State & Dispatcher<State>): Component<State>}
+
+export type AppHooks<State, Route> = {
+  onInit?: (state: State, dispatch: DispatchUpdate<State>) => State
+  onRouteChanged?: (route: Route, dispatch: DispatchUpdate<Route>) => Route
+}
 
 export type Action<S> = Init | UpdateState<S>
 
@@ -102,6 +109,7 @@ export const load = function
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
     module: NodeModule,
+    hooks: AppHooks<State, Route> = {},
     opts = defaultOpts) {
 
   const baseUri = opts.baseUri || defaultOpts.baseUri
@@ -113,22 +121,46 @@ export const load = function
     set: (newRoute: Route) => (state: State): State => (
       {...(state as any), route: newRoute})
   }
-  const getRootDispatcher = (dispatch: ActionDispatch) => createFromReduxDispatch<State>(dispatch)
-  const getRouteDispatcher = (rootDispatcher: DispatchUpdate<State>) => createDispatch(rootDispatcher, routeLens)
+  const getRouteDispatch =
+    (rootDispatcher: RootDispatcher<State, Route>): DispatchUpdate<Route> =>
+      createDispatch(rootDispatcher.dispatch, routeLens)
+
+  const getRootDispatcher =
+    (dispatch: ActionDispatch): RootDispatcher<State, Route> =>  {
+      const stateDispatcher = createFromReduxDispatch<State>(dispatch)
+      const routeDispatcher = createDispatch(stateDispatcher, routeLens)
+      const setRoute = Router.buildSetRoute(routeToUri, baseUri)
+      return {
+        setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
+          routeDispatcher(setRoute(route, opts || {}), Router.SetRouteType)
+        },
+        dispatch: stateDispatcher
+      }
+    }
 
   const schedule = (state: State,
                     action: Action<State> & {dispatchFromUpdate: ActionDispatch}) => {
     if (isReplaying() && (action as any).noReplay)
       return state
+
+    const stateDispatcher = getRootDispatcher(action.dispatchFromUpdate)
+    const routeDispatcher = getRouteDispatch(stateDispatcher)
     switch (action.type) {
+        case InitType:
+          if (hooks.onInit) hooks.onInit(state, stateDispatcher.dispatch)
+          return state
         case UpdateStateType:
-          const cont = action.update(state)
+          let cont = action.update(state)
           if (isPromise(cont)) {
             cont.then(pupdate => dispatch(SyncState(pupdate) as any))
             return state
           } else if (isObservable(cont)) {
             cont.subscribe(pupdate => dispatch(SyncState(pupdate) as any))
             return state
+          }
+          if (action.debugInfo === Router.SetRouteType &&
+              hooks.onRouteChanged) {
+            hooks.onRouteChanged(cont.route, routeDispatcher)
           }
           return cont
         default:
@@ -183,7 +215,7 @@ export const load = function
 
     componentWillMount() {
       this.unloadRouter = Router.load(
-        getRouteDispatcher(getRootDispatcher(this.props.dispatch)),
+        getRouteDispatch(getRootDispatcher(this.props.dispatch)),
         uriToRoute,
         routeToUri,
         baseUri,
@@ -202,12 +234,9 @@ export const load = function
       // https://github.com/Microsoft/TypeScript/issues/15463
 
       const rootDispatcher = getRootDispatcher(this.props.dispatch)
-      const routeDispatcher = getRouteDispatcher(this.props.dispatch)
       const Elem = RootView as any as
         (props: State & RootDispatcher<State, Route>) => JSX.Element
-      return <Elem {...this.props as State}
-        dispatch={rootDispatcher}
-        setRoute={routeDispatcher} />
+      return <Elem {...this.props as State} {...rootDispatcher} />
     }
   }
 
@@ -249,4 +278,12 @@ export function log<T>(value: T, ...others: any[]) {
 export type Mutable<T extends { [x: string]: any }, K extends string> = {
   [P in K]: T[P];
 }
+
+/*
+ hooks
+ {
+   onInit: (state: State): State
+   onRouteChanged: (route: Route): Route
+ }
+*/
 
