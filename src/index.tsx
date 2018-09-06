@@ -8,38 +8,29 @@ import {AppContainer} from "react-hot-loader"
 import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddleware"
 import * as Router from "./router"
 import {RouteToUri, UriToRoute} from "./router"
-import EditableText from "./EditableText"
-import defer from "lodash/defer"
-
 export * from "./types"
 
-import List from "./list"
 import moize from "moize"
-import {F1} from "./types"
+import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch as rtCreateDispatch, createFromReduxDispatch, ActionDispatch} from "./dispatcher"
+
+
+const defer = (f: () => void) => setTimeout(f, 0)
 
 export type JSXElement = React.ReactElement<any>
 
-export {React, EditableText, JSX, List, moize}
+export {React, JSX, moize}
 
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 
 export type AnyAction = Redux.Action
 
-export type Dispatch = <E>(
-  action: Redux.Action,
-  eventToStop?: React.SyntheticEvent<E> | Event) => void
+export type ActionDispatcher = {dispatch: ActionDispatch}
+export type Dispatcher<S> = Dispatcher<S>
+export type DispatchUpdate<S> = DispatchUpdate<S>
+export const createDispatch = rtCreateDispatch
 
-export type Dispatcher = {dispatch: Dispatch}
-
-export const lift = function <E>(
-                           dispatch: Dispatch,
-                           props: {}) {
-  return (action: Redux.Action, e?: React.SyntheticEvent<E> | Event) =>
-    dispatch({...action, ...props}, e)
-}
-
-export class Component<P> extends React.PureComponent<P & Dispatcher> {
-  constructor(props: P & Dispatcher) {
+export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
+  constructor(props: P & ActionDispatcher) {
     super(props)
     this.dispatch = this.dispatch.bind(this)
   }
@@ -47,8 +38,9 @@ export class Component<P> extends React.PureComponent<P & Dispatcher> {
   dispatch<A extends Redux.Action, E>(
            action: A,
            eventToStop?: React.SyntheticEvent<E> | Event) {
-    if (eventToStop) eventToStop.stopPropagation()
-    return this.props.dispatch(action)
+             console.log(eventToStop)
+             if (eventToStop) eventToStop.stopPropagation()
+             return this.props.dispatch(action)
   }
 }
 
@@ -64,17 +56,6 @@ export interface Init {
 export const init = {
   type: "ReactiveElm/Init"
 }
-
-export type Goto<Route> = Router.Action<Route>
-export type GotoType = Router.ActionType
-export const GotoType = Router.ActionType.Goto
-export const Goto = Router.Goto
-
-export type Update<S extends {}, A extends AnyAction, P extends {}> =
-  (state: S, action: A, dispatch: Dispatch, readOnlyProps?: P) => S
-
-export type WrappedUpdate<S extends {}, A extends AnyAction, P extends{}> =
-  (state: S, action: A, readOnlyProps?: P) => S
 
 let store: Redux.Store<any>
 
@@ -101,19 +82,23 @@ const defaultOpts: Opts = {
   onLoad: () => null
 }
 
+export type RootDispatcher<State, Route> = {
+  setRoute: DispatchUpdate<Route>
+} & Dispatcher<State>
+
+export type RootView<State, Route> =
+  ((state: State) => JSXElement) | {new(state: State & Dispatcher<State>): Component<State>} | {new(state: State & RootDispatcher<State, Route>): Component<State>}
+
 export type View<State> =
-  ((state: State) => JSXElement) |
-  { new(state: State & Dispatcher): Component<State> }
+  ((state: State) => JSXElement) | {new(state: State & Dispatcher<State>): Component<State>}
+
+export type Action<S> = Init | UpdateState<S>
 
 export const load = function
     <State extends Router.State<Route>,
-     Action extends Redux.Action,
-     ReadOnlyProps extends {},
      Route>(
     initialState: State,
-    reactsTo: (action: AnyAction) => action is Action,
-    update: Update<State, Action, ReadOnlyProps>,
-    RootView: View<State>,
+    RootView: RootView<State, Route>,
     routeToUri: RouteToUri<Route>,
     uriToRoute: UriToRoute<Route>,
     module: NodeModule,
@@ -123,28 +108,32 @@ export const load = function
   const rootHTMLElement =
     opts.rootHTMLElement || defaultOpts.rootHTMLElement as Element | null
   const remoteDevTools = opts.remoteDevTools || defaultOpts.remoteDevTools
+  const routeLens = {
+    get: (state: State): Route => state.route,
+    set: (newRoute: Route) => (state: State): State => (
+      {...(state as any), route: newRoute})
+  }
+  const getRootDispatcher = (dispatch: ActionDispatch) => createFromReduxDispatch<State>(dispatch)
+  const getRouteDispatcher = (rootDispatcher: DispatchUpdate<State>) => createDispatch(rootDispatcher, routeLens)
 
-  const wrappedUpdate = (state: State,
-                         action: Action & {dispatchFromUpdate: Dispatch}) => {
+  const schedule = (state: State,
+                    action: Action<State> & {dispatchFromUpdate: ActionDispatch}) => {
     if (isReplaying() && (action as any).noReplay)
       return state
-    let newState = state as Router.State<Route>
-    if (Router.reactsTo<Route>(action)) {
-       newState = Router.update(
-        state,
-        action,
-        routeToUri,
-        baseUri
-      )
-    }
-    if (reactsTo(action)) {
-      newState = update(
-        newState as State,
-        action,
-        action.dispatchFromUpdate
-      )
-    }
-    return newState
+    switch (action.type) {
+        case UpdateStateType:
+          const cont = action.update(state)
+          if (isPromise(cont)) {
+            cont.then(pupdate => dispatch(SyncState(pupdate) as any))
+            return state
+          } else if (isObservable(cont)) {
+            cont.subscribe(pupdate => dispatch(SyncState(pupdate) as any))
+            return state
+          }
+          return cont
+        default:
+          return state
+      }
   }
 
   // Initalize the store
@@ -169,11 +158,11 @@ export const load = function
 
   if (isHotReloading) {
     flagReplaying(true)
-    store.replaceReducer(wrappedUpdate)
+    store.replaceReducer(schedule)
     defer(() => flagReplaying(false))
   } else {
     store = createStore(
-      wrappedUpdate,
+      schedule,
       initialState,
       composeEnhancers(
         applyMiddleware(dispatch as any)
@@ -185,7 +174,7 @@ export const load = function
   class Index extends Component<any> {
     unloadRouter: () => void
 
-    constructor(state: State & Dispatcher) {
+    constructor(state: State & ActionDispatcher) {
       super(state)
       if (typeof (window as any).__REACT_HOT_LOADER__ !== "undefined") {
         (window as any).__REACT_HOT_LOADER__.warnings = false
@@ -194,8 +183,9 @@ export const load = function
 
     componentWillMount() {
       this.unloadRouter = Router.load(
-        this.props.dispatch,
+        getRouteDispatcher(getRootDispatcher(this.props.dispatch)),
         uriToRoute,
+        routeToUri,
         baseUri,
         isHotReloading
       )
@@ -210,9 +200,14 @@ export const load = function
     render() {
       // Force TS to see RootJSXElement as an SFC due to this bug:
       // https://github.com/Microsoft/TypeScript/issues/15463
+
+      const rootDispatcher = getRootDispatcher(this.props.dispatch)
+      const routeDispatcher = getRouteDispatcher(this.props.dispatch)
       const Elem = RootView as any as
-        (props: State & Dispatcher) => JSX.Element
-      return <Elem {...this.props as State} dispatch={this.dispatch} />
+        (props: State & RootDispatcher<State, Route>) => JSX.Element
+      return <Elem {...this.props as State}
+        dispatch={rootDispatcher}
+        setRoute={routeDispatcher} />
     }
   }
 
@@ -241,11 +236,6 @@ export interface HotModule extends NodeModule {
   } | null
 }
 
-export const withDispatch = <S extends {}, A extends AnyAction, P extends {}>
-  (f: Update<S, A, P>): WrappedUpdate<S, A, P> =>
-    (state, action, readOnlyProps) =>
-      f(state, action, <A extends AnyAction>(a: A) => a, readOnlyProps)
-
 export const exists = (it: any) =>
   it !== undefined && it !== null
 
@@ -260,14 +250,3 @@ export type Mutable<T extends { [x: string]: any }, K extends string> = {
   [P in K]: T[P];
 }
 
-export type ActionOf = string | F1<AnyAction, boolean>
-
-export const isActionOf = <A extends AnyAction>(...actionsOf: ActionOf[]) =>
-  (action: AnyAction): action is A => {
-    return actionsOf.some(actionOf => {
-      if (typeof actionOf === "string")
-        return action.type === actionOf
-      else
-        return actionOf(action)
-    })
-  }

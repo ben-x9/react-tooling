@@ -1,6 +1,5 @@
-import * as Redux from "redux"
-import * as ReactRedux from "react-redux"
 import createHistory from "history/createBrowserHistory"
+import {DispatchUpdate} from "./dispatcher"
 const history = createHistory()
 
 export type UriToRoute<Route> = (uri: string) => Route
@@ -16,16 +15,55 @@ const getPath = (baseUri = "") => {
   )
 }
 
-export const load = <Route>(dispatch: ReactRedux.Dispatch<Redux.Action>,
+export type SetRouteOpts = {
+  viaHistory?: boolean,
+  noBack?: boolean
+}
+
+export const buildSetRoute =
+  <Route>(
+    routeToUri: RouteToUri<Route>,
+    baseUri: string = ""
+  ) => (
+        route: Route,
+        opts: SetRouteOpts
+      ) => (_: Route) => {
+        if (opts.viaHistory) {
+          const historyAction = opts.noBack ? history.replace : history.push
+          historyAction(
+            `/${baseUri ? baseUri + "/" : ""}${routeToUri(route)}`
+          )
+        }
+        return route
+}
+
+export const load = <Route>(dispatch: DispatchUpdate<Route>,
                             uriToRoute: UriToRoute<Route>,
+                            routeToUri: RouteToUri<Route>,
                             baseUri = "",
                             isHotReloading = false) => {
+  const setRoute = buildSetRoute(routeToUri, baseUri)
+  console.log(setRoute.name)
   if (!isHotReloading && !(window as any).IS_CORDOVA)
-    dispatch(Goto(uriToRoute(getPath(baseUri)), {viaHistory: true}))
+    dispatch(
+      setRoute(
+        uriToRoute(
+          getPath(baseUri)
+        ),
+        {viaHistory: true}
+      ),
+      "SetRoute"
+    )
   return history.listen((_, action) => {
-    if (action === "POP") dispatch(Goto(
-      uriToRoute(getPath(baseUri)), {viaHistory: true}
-    ))
+    if (action === "POP") dispatch(
+      setRoute(
+        uriToRoute(
+          getPath(baseUri)
+        ),
+        {viaHistory: true}
+      ),
+      "SetRoute"
+    )
   })
 }
 
@@ -35,55 +73,3 @@ export interface State<Route> {
   route: Route
 }
 
-// UPDATE
-
-export type Action<Route> = Goto<Route>
-
-export enum ActionType {
-  Goto = "Goto"
-}
-
-export const reactsTo = <Route>(action: Redux.Action):
-    action is Action<Route> => {
-  switch (action.type) {
-    case ActionType.Goto:
-      return true
-    default: return false
-  }
-}
-
-export interface GotoOpts {
-  viaHistory?: boolean
-  noBack?: boolean
-}
-
-export interface Goto<Route> {
-  type: ActionType.Goto
-  route: Route,
-  opts: GotoOpts
-}
-export const Goto = <Route>(route: Route, opts: GotoOpts = {}): Goto<Route> => ({
-  type: ActionType.Goto,
-  route,
-  opts
-})
-
-export const update = <Route>(
-                       state: State<Route>,
-                       action: Action<Route>,
-                       routeToUri: RouteToUri<Route>,
-                       baseUri = ""): State<Route> => {
-  switch (action.type) {
-    case ActionType.Goto:
-      if (!action.opts.viaHistory) {
-        const historyAction = action.opts.noBack ?
-          history.replace : history.push
-        historyAction(
-          "/" +
-          (baseUri ? baseUri + "/" : "") +
-          routeToUri(action.route)
-        )
-      }
-      return {...state, route: action.route}
-  }
-}
