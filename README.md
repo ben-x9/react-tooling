@@ -19,39 +19,22 @@ interface Home {
   type: RouteType.Home
 }
 const home: Home = {type: RouteType.Home}
-interface NotFound {
-  type: RouteType.NotFound
-}
-const notFound: NotFound =
-  {type: RouteType.NotFound}
 
-const toUri = (route: Route): string => {
-  switch (route.type) {
-    case RouteType.Home:
-      return ""
-    case RouteType.NotFound:
-      return "not-found"
-  }
-}
-
-const fromUri = (uri: string): Route => {
-  if (uri === "") {
-    return home
-  } else {
-    return notFound
-  }
-}
+const toUri = (route: Route): string => ""
+const fromUri = (uri: string): Route => home
 
 interface State {
-  name: string
+  route: Route
+  text: string
 }
 const State = {
-  name: "Test"
+  route: home
+  text: "Test"
 }
 
-const updateName = (name: string) => (state: State): State => ({
+const updateName = (newTest: string) => (state: State): State => ({
   ...state,
-  name
+  text: newText
 })
 
 const View = ({
@@ -59,13 +42,9 @@ const View = ({
   setRoute,
   ...state
 }: State & RootDispatcher<State, Route>): JSX.Element => {
-  switch (state.route.type) {
-    case RouteType.NotFound:
-      return <div>Not found</div>
-    case RouteType.Home:
-      return (
-        <div onClick={() => dispatch(updateName("Clicked"))}>{state.name}</div>
-      )
+    return (
+      <div onClick={() => dispatch(updateName("Clicked"))}>{state.text}</div>
+    )
   }
 }
 
