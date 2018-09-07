@@ -134,11 +134,11 @@ export const load = function
     }
 
   const schedule = (state: State,
-                    action: Action<State> & {dispatchFromUpdate: ActionDispatch}) => {
+                    {dispatchFromUpdate, ...action}: Action<State> & {dispatchFromUpdate: ActionDispatch}) => {
     if (isReplaying() && (action as any).noReplay)
       return state
 
-    const stateDispatcher = getRootDispatcher(action.dispatchFromUpdate)
+    const stateDispatcher = getRootDispatcher(dispatchFromUpdate)
     switch (action.type) {
         case InitType:
           if (hooks.onInit) hooks.onInit(state, stateDispatcher.dispatch)
@@ -146,10 +146,10 @@ export const load = function
         case UpdateStateType:
           let cont = action.update(state)
           if (isPromise(cont)) {
-            cont.then(pupdate => dispatch(SyncState(pupdate) as any))
+            cont.then(pupdate => dispatchFromUpdate(SyncState(pupdate)))
             return state
           } else if (isObservable(cont)) {
-            cont.subscribe(pupdate => dispatch(SyncState(pupdate) as any))
+            cont.subscribe(pupdate => dispatchFromUpdate(SyncState(pupdate)))
             return state
           }
           if (action.name === Router.SetRouteType &&
