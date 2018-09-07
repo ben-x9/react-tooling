@@ -12,7 +12,7 @@ import {RouteToUri, UriToRoute} from "./router"
 export * from "./types"
 
 import moize from "moize"
-import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch as rtCreateDispatch, createFromReduxDispatch, ActionDispatch} from "./dispatcher"
+import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch as _createDispatch, createFromReduxDispatch, ActionDispatch, noReplay as _noReplay} from "./dispatcher"
 
 export type JSXElement = React.ReactElement<any>
 
@@ -25,7 +25,8 @@ export type AnyAction = Redux.Action
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
 export type DispatchUpdate<S> = DispatchUpdate<S>
-export const createDispatch = rtCreateDispatch
+export const createDispatch = _createDispatch
+export const noReplay = _noReplay
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
   constructor(props: P & ActionDispatcher) {
