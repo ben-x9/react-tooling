@@ -10,11 +10,10 @@ npm install react-tooling
 
 ```tsx
 
-import * as Root from "Root"
 import {load} from "react-tooling"
-import {toUri, fromUri} from "routes"
 
-type Route = Home | Play | NotFound
+type F1<A, B> = (a: A) => B
+type Route = Home
 interface Home {
   type: RouteType.Home
 }
@@ -32,10 +31,15 @@ const State = {
   text: "Test"
 }
 
-const updateName = (newTest: string) => (state: State): State => ({
+// sync task
+const updateText = (newText: string) => (state: State): State => ({
   ...state,
   text: newText
 })
+
+// Example with async task
+const updateTextAsync = (newText: string) => (state: State): Promise<F1<State, State>> =>
+  Promise.resolve((state) => ({...state, text: newText}))
 
 const View = ({
   dispatch,
@@ -43,7 +47,11 @@ const View = ({
   ...state
 }: State & RootDispatcher<State, Route>): JSX.Element => {
     return (
-      <div onClick={() => dispatch(updateName("Clicked"))}>{state.text}</div>
+      <div>
+        {state.text}
+        <button onClick={dispatch(updateText("clicked"))}>Update name</button>
+        <button onClick={dispatch(updateTextAsync("Clicked async"))}></button>
+      </div>
     )
   }
 }
