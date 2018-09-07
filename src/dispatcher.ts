@@ -9,7 +9,7 @@ export type UpdateF<S> = F1<S, Continuation<S>> & {noReplay?: boolean}
 export interface UpdateState<S> {
   type: "UpdateState"
   update: UpdateF<S>
-  debugInfo: string
+  name: string
   noReplay: boolean
 }
 export type DispatchUpdate<S1> = (
@@ -31,12 +31,12 @@ export const SyncState = <S>(f: F1<S, S>): UpdateState<S> =>
 
 const UpdateState = <S>(
   update: UpdateF<S>,
-  debugInfo: string,
+  name: string,
   noReplay: boolean = false
 ): UpdateState<S> => ({
   type: UpdateStateType,
   update,
-  debugInfo,
+  name,
   noReplay: noReplay
 })
 

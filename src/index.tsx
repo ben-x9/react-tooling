@@ -33,12 +33,9 @@ export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
     this.dispatch = this.dispatch.bind(this)
   }
 
-  dispatch<A extends Redux.Action, E>(
-           action: A,
-           eventToStop?: React.SyntheticEvent<E> | Event) {
-             console.log(eventToStop)
-             if (eventToStop) eventToStop.stopPropagation()
-             return this.props.dispatch(action)
+  dispatch<A extends Redux.Action>(
+           action: A) {
+    return this.props.dispatch(action)
   }
 }
 
@@ -93,8 +90,8 @@ export type View<State> =
   ((state: State) => JSXElement) | {new(state: State & Dispatcher<State>): Component<State>}
 
 export type AppHooks<State, Route> = {
-  onInit?: (state: State, dispatch: DispatchUpdate<State>) => State
-  onRouteChanged?: (route: Route, dispatch: DispatchUpdate<Route>) => Route
+  onInit?: (state: State, dispatch: DispatchUpdate<State>) => void
+  onRouteChanged?: (route: Route, dispatch: DispatchUpdate<State>) => void
 }
 
 export type Action<S> = Init | UpdateState<S>
@@ -130,7 +127,7 @@ export const load = function
       const setRoute = Router.buildSetRoute(routeToUri, baseUri)
       return {
         setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
-          routeDispatcher(setRoute(route, opts || {}), Router.SetRouteType)
+          routeDispatcher(setRoute(route, opts || {viaHistory: true}), Router.SetRouteType)
         },
         dispatch: stateDispatcher
       }
@@ -142,7 +139,6 @@ export const load = function
       return state
 
     const stateDispatcher = getRootDispatcher(action.dispatchFromUpdate)
-    const routeDispatcher = getRouteDispatch(stateDispatcher)
     switch (action.type) {
         case InitType:
           if (hooks.onInit) hooks.onInit(state, stateDispatcher.dispatch)
@@ -156,9 +152,9 @@ export const load = function
             cont.subscribe(pupdate => dispatch(SyncState(pupdate) as any))
             return state
           }
-          if (action.debugInfo === Router.SetRouteType &&
+          if (action.name === Router.SetRouteType &&
               hooks.onRouteChanged) {
-            hooks.onRouteChanged(cont.route, routeDispatcher)
+            hooks.onRouteChanged(cont.route, stateDispatcher.dispatch)
           }
           return cont
         default:
