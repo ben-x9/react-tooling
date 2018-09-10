@@ -1,5 +1,5 @@
 import {MiddlewareAPI, Dispatch, Action} from "redux"
-import defer from "lodash/defer"
+import defer from "./defer"
 
 let _replaying = false
 let _monitor: any = null
