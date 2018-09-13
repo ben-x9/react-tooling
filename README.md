@@ -107,7 +107,7 @@ type DispatchUpdate<S> = (
   name?: string,
   noReplay?: boolean
 ) => void
-export type GetAndSet<S, S1> = {
+type GetAndSet<S, S1> = {
   get: F1<S, S1>
   set: Curried<S1, S, S>
 }
