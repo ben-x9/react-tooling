@@ -74,6 +74,8 @@ load(
 )
 ```
 
+More advanced demo can be found at this repository https://github.com/ben-x9/react-tooling-demo/tree/with-new-react-tooling
+
 # API Documentation
 
 ## Load
@@ -117,5 +119,3 @@ type GetAndSet<S, S1> = {
   lens: GetAndSet<S, S1>
 ): DispatchUpdate<S1>
 ```
- 
-More advanced demo can be found at this repository https://github.com/ben-x9/react-tooling-demo/tree/with-new-react-tooling
