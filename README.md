@@ -13,56 +13,52 @@ npm install react-tooling
 # Basic usage
 
 ```tsx
+import "react-hot-loader/patch";
+import { load, React, RootDispatcher } from "react-tooling";
+import { F1 } from "functools-ts";
 
-import {load} from "react-tooling"
-
-type F1<A, B> = (a: A) => B
-type Route = Home
+enum RouteType {
+  Home = "Home"
+}
 interface Home {
-  type: RouteType.Home
+  type: RouteType.Home;
 }
-const home: Home = {type: RouteType.Home}
+const Home: Home = { type: RouteType.Home };
+type Route = Home;
 
-// convert a route to string path
-const toUri = (route: Route): string => ""
-// convert an string path to a route
-const fromUri = (path: string): Route => home
+const toUri = (route: Route): string => "";
+const fromUri = (uri: string): Route => Home;
 
-// The application state
 interface State {
-  route: Route
-  text: string
+  route: Route;
+  text: string;
 }
-const State = {
-  route: home
-  text: "Test"
-}
+const State: State = {
+  route: Home,
+  text: "hello"
+};
 
-// sync task
-const updateText = (newText: string) => (state: State): State => ({
+const setText = (text: string) => (state: State): State => ({
   ...state,
-  text: newText
-})
+  text
+});
 
-// Example with async task
-const updateTextAsync = (newText: string) => (state: State): Promise<F1<State, State>> =>
-  Promise.resolve((state) => ({...state, text: newText}))
+const setTextAsync = (text: string) => (
+  state: State
+): Promise<F1<State, State>> => Promise.resolve(state => ({ ...state, text }));
 
-// Application view
-const View = ({
-  dispatch,
-  setRoute,
-  ...state
-}: State & RootDispatcher<State, Route>): JSX.Element => {
-    return (
-      <div>
-        {state.text}
-        <button onClick={dispatch(updateText("clicked"))}>Update name</button>
-        <button onClick={dispatch(updateTextAsync("Clicked async"))}></button>
-      </div>
-    )
-  }
-}
+type ViewProps = State & RootDispatcher<State, Route>;
+const View = ({ dispatch, setRoute, ...state }: ViewProps): JSX.Element => (
+  <div>
+    <button onClick={() => dispatch(setText("Hello sync"))}>
+      Update text sync
+    </button>
+    <button onClick={() => dispatch(setTextAsync("Hello async"))}>
+      Update text async
+    </button>
+    {state.text}
+  </div>
+);
 
 load(
   State,
@@ -70,8 +66,11 @@ load(
   toUri,
   fromUri,
   module,
-  {}
-)
+  {},
+  {
+    rootHTMLElement: document.getElementById("root")
+  }
+);
 ```
 
 More advanced demo can be found at this repository https://github.com/ben-x9/react-tooling-demo/tree/with-new-react-tooling
