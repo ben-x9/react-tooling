@@ -23,9 +23,12 @@ interface Home {
 }
 const home: Home = {type: RouteType.Home}
 
+// convert a route to string path
 const toUri = (route: Route): string => ""
-const fromUri = (uri: string): Route => home
+// convert an string path to a route
+const fromUri = (path: string): Route => home
 
+// The application state
 interface State {
   route: Route
   text: string
@@ -45,6 +48,7 @@ const updateText = (newText: string) => (state: State): State => ({
 const updateTextAsync = (newText: string) => (state: State): Promise<F1<State, State>> =>
   Promise.resolve((state) => ({...state, text: newText}))
 
+// Application view
 const View = ({
   dispatch,
   setRoute,
@@ -65,7 +69,8 @@ load(
   View,
   toUri,
   fromUri,
-  module
+  module,
+  {}
 )
 ```
 
