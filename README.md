@@ -1,6 +1,10 @@
 # react-tooling
 Tooling for React
 
+# Motivation and architecture design
+
+https://docs.google.com/document/d/1l5RW-zF2auaWf22yXKt94KsYQfOjj08IOuR3fK2r5iQ/edit?usp=sharing
+
 # Installation
 ```sh
 npm install react-tooling
