@@ -13,6 +13,7 @@ export * from "./types"
 
 import moize from "moize"
 import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay} from "./dispatcher"
+import {catchError} from "rxjs/operators"
 
 export type JSXElement = React.ReactElement<any>
 
@@ -90,8 +91,9 @@ export type View<State> =
   ((state: State) => JSXElement) | {new(state: State & Dispatcher<State>): Component<State>}
 
 export type AppHooks<State, Route> = {
-  onInit?: (state: State, dispatch: DispatchUpdate<State>) => void
-  onRouteChanged?: (route: Route, dispatch: DispatchUpdate<State>) => void
+  onInit?: (state: State, dispatch: RootDispatcher<State, Route>) => void
+  onRouteChanged?: (route: Route, dispatch: RootDispatcher<State, Route>) => void
+  onError?: (error: Error, dispatch: RootDispatcher<State, Route>) => void
 }
 
 export type Action<S> = Init | UpdateState<S>
@@ -133,30 +135,50 @@ export const load = function
       }
     }
 
+  type ActionWithDispatch = Action<State> & {dispatchFromUpdate: ActionDispatch}
+
+  const onError =
+    (error: Error, stateDispatcher: RootDispatcher<State, Route>): void =>
+      hooks.onError
+        ? hooks.onError(error, stateDispatcher)
+        : console.error(error)
+
   const schedule = (state: State,
-                    {dispatchFromUpdate, ...action}: Action<State> & {dispatchFromUpdate: ActionDispatch}) => {
+                    {dispatchFromUpdate, ...action}: ActionWithDispatch) => {
     if (isReplaying() && (action as any).noReplay)
       return state
 
     const stateDispatcher = getRootDispatcher(dispatchFromUpdate)
     switch (action.type) {
         case InitType:
-          if (hooks.onInit) hooks.onInit(state, stateDispatcher.dispatch)
+          if (hooks.onInit) hooks.onInit(state, stateDispatcher)
           return state
         case UpdateStateType:
-          let cont = action.update(state)
-          if (isPromise(cont)) {
-            cont.then(pupdate => dispatchFromUpdate(SyncState(pupdate)))
-            return state
-          } else if (isObservable(cont)) {
-            cont.subscribe(pupdate => dispatchFromUpdate(SyncState(pupdate)))
-            return state
-          }
-          if (action.name === Router.SetRouteType &&
-              hooks.onRouteChanged) {
-            hooks.onRouteChanged(cont.route, stateDispatcher.dispatch)
-          }
-          return cont
+          try {
+            let cont = action.update(state)
+            if (isPromise(cont)) {
+              cont.then(pupdate => dispatchFromUpdate(SyncState(pupdate)))
+                  .catch(err => onError(err as Error, stateDispatcher))
+              return state
+            } else if (isObservable(cont)) {
+              cont
+                .pipe(
+                  catchError(err =>
+                    onError(err as Error, stateDispatcher) as never
+                  )
+                )
+                .subscribe(pupdate => dispatchFromUpdate(SyncState(pupdate)))
+              return state
+            }
+            if (action.name === Router.SetRouteType &&
+                hooks.onRouteChanged) {
+              hooks.onRouteChanged(cont.route, stateDispatcher)
+            }
+            return cont
+        } catch (err) {
+          onError(err as Error, stateDispatcher)
+          return state
+        }
         default:
           return state
       }
