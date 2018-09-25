@@ -25,7 +25,6 @@ export type AnyAction = Redux.Action
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
 export type DispatchUpdate<S> = DispatchUpdate<S>
-
 export {createDispatch, noReplay}
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
