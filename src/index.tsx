@@ -17,7 +17,23 @@ import {catchError} from "rxjs/operators"
 
 export type JSXElement = React.ReactElement<any>
 
-export {React, JSX, moize}
+const propsEquals = <State extends {}>(first: State & Dispatcher<State>, second: State & Dispatcher<State>): boolean =>
+  Object.keys(first)
+    .every(key => key !== "dispatch" ? (first as any)[key] === (second as any)[key]: true)
+
+export const memoizeComponent = <A extends {}>(fn: View<A>, options?: any): View<A> => {
+  if (options) {
+    return moize.reactSimple(fn as any, {
+      ...options,
+      equals: propsEquals
+    })
+  }
+  return moize.reactSimple(fn as any, {
+     equals: propsEquals
+  })
+}
+
+export {React, JSX}
 
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 
