@@ -4,11 +4,10 @@ import {Observable} from "rxjs"
 import {map} from "rxjs/operators"
 import moize from "moize"
 
-export const UpdateStateType = "UpdateState"
 export type Continuation<S> = S | Promise<F1<S, S>> | Observable<F1<S, S>>
 export type UpdateF<S> = F1<S, Continuation<S>> & {noReplay?: boolean}
 export interface UpdateState<S> {
-  type: "UpdateState"
+  type: string
   update: UpdateF<S>
   name: string
   noReplay: boolean
@@ -35,7 +34,7 @@ const UpdateState = <S>(
   name: string,
   noReplay: boolean = false
 ): UpdateState<S> => ({
-  type: UpdateStateType,
+  type: name ? name : "UpdateState",
   update,
   name,
   noReplay: noReplay
@@ -51,6 +50,9 @@ export const isPromise = <S>(c: Continuation<S>): c is Promise<F1<S, S>> =>
 export const isObservable = <S>(
   c: Continuation<S>
 ): c is Observable<F1<S, S>> => ((c as any).subscribe ? true : false)
+
+export const isUpdateState = <S>(action: Redux.Action): action is UpdateState<S> =>
+  (action as any).update ? true : false
 
 export const createFromReduxDispatch = <S>(
   dispatch: ActionDispatch
@@ -98,8 +100,8 @@ const _createDispatch = <S, S1>(
       }
       return lens.set(cont)(state)
     },
-    update.name ? update.name : name,
-    update.noReplay ? update.noReplay : noReplay
+    name ? name : update.name,
+    noReplay ? noReplay : update.noReplay
   )
 }
 

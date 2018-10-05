@@ -10,7 +10,7 @@ import * as Router from "./router"
 import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
 import moize from "moize"
-import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay} from "./dispatcher"
+import {UpdateState, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay, isUpdateState} from "./dispatcher"
 import {catchError} from "rxjs/operators"
 
 export * from "./types"
@@ -153,33 +153,34 @@ export const load = function
         case InitType:
           if (hooks.onInit) hooks.onInit(state, stateDispatcher)
           return state
-        case UpdateStateType:
-          try {
-            let cont = action.update(state)
-            if (isPromise(cont)) {
-              cont.then(pupdate => dispatchFromUpdate(SyncState(pupdate)))
-                  .catch(err => onError(err as Error, stateDispatcher))
-              return state
-            } else if (isObservable(cont)) {
-              cont
-                .pipe(
-                  catchError(err =>
-                    onError(err as Error, stateDispatcher) as never
-                  )
-                )
-                .subscribe(pupdate => dispatchFromUpdate(SyncState(pupdate)))
-              return state
-            }
-            if (action.name === Router.SetRouteType &&
-                hooks.onRouteChanged) {
-              hooks.onRouteChanged(cont.route, stateDispatcher)
-            }
-            return cont
-        } catch (err) {
-          onError(err as Error, stateDispatcher)
-          return state
-        }
         default:
+          if (isUpdateState(action)) {
+            try {
+              let cont = action.update(state)
+              if (isPromise(cont)) {
+                cont.then(pupdate => dispatchFromUpdate(SyncState(pupdate)))
+                    .catch(err => onError(err as Error, stateDispatcher))
+                return state
+              } else if (isObservable(cont)) {
+                cont
+                  .pipe(
+                    catchError(err =>
+                      onError(err as Error, stateDispatcher) as never
+                    )
+                  )
+                  .subscribe(pupdate => dispatchFromUpdate(SyncState(pupdate)))
+                return state
+              }
+              if (action.name === Router.SetRouteType &&
+                  hooks.onRouteChanged) {
+                hooks.onRouteChanged(cont.route, stateDispatcher)
+              }
+              return cont
+            } catch (err) {
+              onError(err as Error, stateDispatcher)
+              return state
+            }
+          }
           return state
       }
   }
