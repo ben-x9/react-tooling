@@ -9,11 +9,11 @@ import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddle
 import * as Router from "./router"
 import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
-export * from "./types"
-
 import moize from "moize"
 import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay} from "./dispatcher"
 import {catchError} from "rxjs/operators"
+
+export * from "./types"
 
 export type JSXElement = React.ReactElement<any>
 
