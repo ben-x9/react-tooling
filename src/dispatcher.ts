@@ -2,6 +2,7 @@ import {F1, Curried} from "functools-ts"
 import * as Redux from "redux"
 import {Observable} from "rxjs"
 import {map} from "rxjs/operators"
+import moize from "moize"
 
 export const UpdateStateType = "UpdateState"
 export type Continuation<S> = S | Promise<F1<S, S>> | Observable<F1<S, S>>
@@ -72,7 +73,7 @@ export type GetAndSet<S, S1> = {
   set: Set<S, S1>
 }
 
-export const createDispatch = <S, S1>(
+const _createDispatch = <S, S1>(
   parentDispatch: DispatchUpdate<S>,
   lens: GetAndSet<S, S1>
 ): DispatchUpdate<S1> => (
@@ -101,3 +102,5 @@ export const createDispatch = <S, S1>(
     update.noReplay ? update.noReplay : noReplay
   )
 }
+
+export const createDispatch = moize.simple(_createDispatch)

@@ -9,31 +9,15 @@ import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddle
 import * as Router from "./router"
 import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
-export * from "./types"
-
 import moize from "moize"
 import {UpdateState, UpdateStateType, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay} from "./dispatcher"
 import {catchError} from "rxjs/operators"
 
+export * from "./types"
+
 export type JSXElement = React.ReactElement<any>
 
-const propsEquals = <State extends {}>(first: State & Dispatcher<State>, second: State & Dispatcher<State>): boolean =>
-  Object.keys(first)
-    .every(key => key !== "dispatch" ? (first as any)[key] === (second as any)[key]: true)
-
-export const memoizeComponent = <A extends {}>(fn: View<A>, options?: any): View<A> => {
-  if (options) {
-    return moize.reactSimple(fn as any, {
-      ...options,
-      equals: propsEquals
-    })
-  }
-  return moize.reactSimple(fn as any, {
-     equals: propsEquals
-  })
-}
-
-export {React, JSX}
+export {React, JSX, moize}
 
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 
