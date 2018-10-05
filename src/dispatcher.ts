@@ -99,7 +99,7 @@ export const createDispatch = <S, S1>(
       }
       return lens.set(cont)(state)
     },
-    update.name ? update.name : name,
-    update.noReplay ? update.noReplay : noReplay
+    name ? name : update.name,
+    noReplay ? noReplay : update.noReplay
   )
 }
