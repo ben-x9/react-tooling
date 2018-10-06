@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
@@ -26,15 +26,13 @@
   "dependencies": {
     "functools-ts": "^0.0.11",
     "history": "^4.7.2",
-    "moize": "^5.4.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-hot-loader": "^3.1.3",
     "react-redux": "^5.0.7",
     "redux": "^3.7.2",
     "remote-redux-devtools": "^0.5.13",
-    "rxjs": "^6.3.2",
-    "type-zoo": "^1.2.1"
+    "rxjs": "^6.3.2"
   },
   "devDependencies": {
     "tslint": "^5.8.0",
