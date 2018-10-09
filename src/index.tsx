@@ -9,15 +9,15 @@ import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddle
 import * as Router from "./router"
 import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
-import moize from "moize"
 import {UpdateState, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay, isUpdateState} from "./dispatcher"
 import {catchError} from "rxjs/operators"
 
 export * from "./types"
+export * from "./view"
 
 export type JSXElement = React.ReactElement<any>
 
-export {React, JSX, moize}
+export {React, JSX}
 
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 
