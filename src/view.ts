@@ -8,7 +8,7 @@ export type View<State> =
 
 const shallowEqual = (first: any, second: any): boolean =>
   Object.keys(first).every(key => {
-    if (isDispatchUpdate(first[key]))
+    if (first[key] && isDispatchUpdate(first[key]))
       return true
     return first[key] === second[key]
   })
@@ -21,7 +21,7 @@ export const memoizeComponent = <S>(view: View<S>): View<S> => {
       }
 
       render() {
-        return factory(this.props)
+        return factory(this.props as any)
       }
     }
 }
