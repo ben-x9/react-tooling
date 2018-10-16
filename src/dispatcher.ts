@@ -11,7 +11,7 @@ export interface UpdateState<S> {
   name: string
   noReplay: boolean
 }
-const DispatchUpdateSymbol = Symbol("DispatchUpdate")
+export const DispatchUpdateSymbol = Symbol("DispatchUpdate")
 
 export type DispatchUpdate<S1> = ((
   update: UpdateF<S1>,
