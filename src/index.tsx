@@ -9,7 +9,7 @@ import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddle
 import * as Router from "./router"
 import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
-import {UpdateState, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay, isUpdateState} from "./dispatcher"
+import {UpdateState, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay, isUpdateState, DispatchUpdateSymbol} from "./dispatcher"
 import {catchError} from "rxjs/operators"
 
 export * from "./types"
@@ -26,7 +26,7 @@ export type AnyAction = Redux.Action
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
 export type DispatchUpdate<S> = DispatchUpdate<S>
-export {createDispatch, noReplay}
+export {createDispatch, noReplay, DispatchUpdateSymbol}
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
   constructor(props: P & ActionDispatcher) {
