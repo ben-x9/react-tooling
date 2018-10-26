@@ -8,7 +8,8 @@ export type RouteToUri<Route> = (route: Route) => string
 // Subtract the baseUri from window.location.pathname
 const getPath = (baseUri = "") => {
   if (baseUri) baseUri += "/"
-  return window.location.pathname.slice(1).split("").reduce(
+  const path = window.location.pathname + window.location.search
+  return path.slice(1).split("").reduce(
     (result, char, i) =>
       result + (char === baseUri[i] ? "" : char),
     ""
