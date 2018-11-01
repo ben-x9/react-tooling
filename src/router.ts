@@ -1,5 +1,5 @@
 import createHistory from "history/createBrowserHistory"
-import {DispatchUpdate} from "./dispatcher"
+import {Dispatch} from "./dispatcher"
 const history = createHistory()
 
 export type UriToRoute<Route> = (uri: string) => Route
@@ -40,7 +40,7 @@ export const buildSetRoute =
         return route
 }
 
-export const load = <Route>(dispatch: DispatchUpdate<Route>,
+export const load = <Route>(dispatch: Dispatch<Route>,
                             uriToRoute: UriToRoute<Route>,
                             routeToUri: RouteToUri<Route>,
                             baseUri = "",

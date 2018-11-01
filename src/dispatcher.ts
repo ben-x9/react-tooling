@@ -13,7 +13,7 @@ export interface UpdateState<S> {
 }
 export const DispatchUpdateSymbol = Symbol("DispatchUpdate")
 
-export type DispatchUpdate<S1> = ((
+export type Dispatch<S1> = ((
   update: UpdateF<S1>,
   name?: string,
   noReplay?: boolean
@@ -23,7 +23,7 @@ export type UpdateFOpts = {
   noReplay?: boolean
 }
 export type Dispatcher<S> = {
-  dispatch: DispatchUpdate<S>
+  dispatch: Dispatch<S>
 }
 export type Get<S, S1> = F1<S, S1>
 export type Set<S, S1> = Curried<S1, S, S>
@@ -56,12 +56,12 @@ export const isUpdateState = <S>(action: Redux.Action): action is UpdateState<S>
   !!(action as any).update
 
 
-export const isDispatchUpdate = <S>(obj: any): obj is DispatchUpdate<S> =>
+export const isDispatchUpdate = <S>(obj: any): obj is Dispatch<S> =>
   !!obj[DispatchUpdateSymbol]
 
 export const createFromReduxDispatch = <S>(
   dispatch: ActionDispatch
-): DispatchUpdate<S> => {
+): Dispatch<S> => {
   let dispatchUpdate = ((
     update: UpdateF<S>,
     name?: string,
@@ -69,7 +69,7 @@ export const createFromReduxDispatch = <S>(
   ) => {
     const action = UpdateState(update, name ? name : "", noReplay ? true : false)
     dispatch(action)
-  }) as DispatchUpdate<S>
+  }) as Dispatch<S>
   dispatchUpdate[DispatchUpdateSymbol] = true
   return dispatchUpdate
 }
@@ -85,9 +85,9 @@ export type GetAndSet<S, S1> = {
 }
 
 export const createDispatch = <S, S1>(
-  parentDispatch: DispatchUpdate<S>,
+  parentDispatch: Dispatch<S>,
   lens: GetAndSet<S, S1>
-): DispatchUpdate<S1> => {
+): Dispatch<S1> => {
   let dispatchUpdate = ((
     update: UpdateF<S1>,
     name?: string,
@@ -113,7 +113,7 @@ export const createDispatch = <S, S1>(
       name ? name : update.name,
       noReplay ? noReplay : update.noReplay
     )
-  }) as any as DispatchUpdate<S1>
+  }) as any as Dispatch<S1>
   dispatchUpdate[DispatchUpdateSymbol] = true
   return dispatchUpdate
 }

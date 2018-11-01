@@ -9,7 +9,7 @@ import {dispatch, flagReplaying, setMonitor, isReplaying} from "./dispatchMiddle
 import * as Router from "./router"
 import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
-import {UpdateState, isPromise, SyncState, isObservable, Dispatcher, DispatchUpdate, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay, isUpdateState, DispatchUpdateSymbol} from "./dispatcher"
+import {UpdateState, isPromise, SyncState, isObservable, Dispatcher, Dispatch, createDispatch, createFromReduxDispatch, ActionDispatch, noReplay, isUpdateState, DispatchUpdateSymbol, Continuation} from "./dispatcher"
 import {catchError} from "rxjs/operators"
 
 export * from "./types"
@@ -25,7 +25,7 @@ export type AnyAction = Redux.Action
 
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
-export type DispatchUpdate<S> = DispatchUpdate<S>
+export type Dispatch<S> = Dispatch<S>
 export {createDispatch, noReplay, DispatchUpdateSymbol}
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
@@ -119,7 +119,7 @@ export const load = function
       {...(state as any), route: newRoute})
   }
   const getRouteDispatch =
-    (rootDispatcher: RootDispatcher<State, Route>): DispatchUpdate<Route> =>
+    (rootDispatcher: RootDispatcher<State, Route>): Dispatch<Route> =>
       createDispatch(rootDispatcher.dispatch, routeLens)
 
   const getRootDispatcher =
@@ -295,3 +295,21 @@ export function log<T>(value: T, ...others: any[]) {
 export type Mutable<T extends { [x: string]: any }, K extends string> = {
   [P in K]: T[P];
 }
+
+type UpdateF<S> = (state: S) => Continuation<S>
+type UpdateFWithProps<P, S> = (props: P) => UpdateF<S>
+
+export type DispatchWithProps<P, S> =
+  (f: UpdateFWithProps<P, S>, name?: string, noReplay?: boolean) => void
+
+export type DispatcherWithProps<P, S> = {
+  dispatch: DispatchWithProps<P, S>
+}
+
+export const createDispatchWithProps = <P, S>(
+  dispatch: Dispatch<S>,
+  props: P
+): DispatcherWithProps<P, S> => ({
+  dispatch: (f: UpdateFWithProps<P, S>, name?: string, noReplay?: boolean) =>
+    dispatch(f(props), name, noReplay)
+})
