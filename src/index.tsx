@@ -339,7 +339,8 @@ export type DispatcherWithProps<P, S> = {
 export const createDispatchWithProps = <P, S>(
   dispatch: Dispatch<S>,
   props: P
-): DispatcherWithProps<P, S> => ({
-  dispatch: (f: UpdateFWithProps<P, S>, name?: string, noReplay?: boolean) =>
-    dispatch(f(props), name, noReplay)
-})
+): DispatchWithProps<P, S> => (
+  f: UpdateFWithProps<P, S>,
+  name?: string,
+  noReplay?: boolean
+) => dispatch(f(props), name, noReplay)

@@ -1,22 +1,13 @@
 {
   "name": "react-tooling",
-  "version": "0.23.1",
+  "version": "0.24.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
   "repository": "github.com/ben-x9/react-tooling",
-  "authors": [
-    "Ben Lambert",
-    "Jalal Chaabane"
-  ],
+  "authors": ["Ben Lambert", "Jalal Chaabane"],
   "license": "MIT",
-  "keywords": [
-    "react",
-    "reactjs",
-    "redux",
-    "typescript",
-    "elm-architecture"
-  ],
+  "keywords": ["react", "reactjs", "redux", "typescript", "elm-architecture"],
   "scripts": {
     "build": "rm -rf dist && tsc",
     "prepare": "npm run build",
