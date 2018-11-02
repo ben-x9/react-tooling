@@ -43,18 +43,19 @@ const UpdateState = <S>(
 
 export type ActionDispatch = <E>(
   action: Redux.Action,
-  eventToStop?: React.SyntheticEvent<E> | Event) => void
+  eventToStop?: React.SyntheticEvent<E> | Event
+) => void
 
 export const isPromise = <S>(c: Continuation<S>): c is Promise<F1<S, S>> =>
   !!(c as any).then
 
 export const isObservable = <S>(
   c: Continuation<S>
-): c is Observable<F1<S, S>> => !!((c as any).subscribe)
+): c is Observable<F1<S, S>> => !!(c as any).subscribe
 
-export const isUpdateState = <S>(action: Redux.Action): action is UpdateState<S> =>
-  !!(action as any).update
-
+export const isUpdateState = <S>(
+  action: Redux.Action
+): action is UpdateState<S> => !!(action as any).update
 
 export const isDispatchUpdate = <S>(obj: any): obj is Dispatch<S> =>
   !!obj[DispatchUpdateSymbol]
@@ -67,7 +68,11 @@ export const createFromReduxDispatch = <S>(
     name?: string,
     noReplay?: boolean
   ) => {
-    const action = UpdateState(update, name ? name : "", noReplay ? true : false)
+    const action = UpdateState(
+      update,
+      name ? name : "",
+      noReplay ? true : false
+    )
     dispatch(action)
   }) as Dispatch<S>
   dispatchUpdate[DispatchUpdateSymbol] = true
@@ -88,7 +93,7 @@ export const createDispatch = <S, S1>(
   parentDispatch: Dispatch<S>,
   lens: GetAndSet<S, S1>
 ): Dispatch<S1> => {
-  let dispatchUpdate = ((
+  let dispatchUpdate = (((
     update: UpdateF<S1>,
     name?: string,
     noReplay?: boolean
@@ -113,7 +118,7 @@ export const createDispatch = <S, S1>(
       name ? name : update.name,
       noReplay ? noReplay : update.noReplay
     )
-  }) as any as Dispatch<S1>
+  }) as any) as Dispatch<S1>
   dispatchUpdate[DispatchUpdateSymbol] = true
   return dispatchUpdate
 }

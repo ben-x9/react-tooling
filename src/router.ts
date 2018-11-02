@@ -9,63 +9,49 @@ export type RouteToUri<Route> = (route: Route) => string
 const getPath = (baseUri = "") => {
   if (baseUri) baseUri += "/"
   const path = window.location.pathname + window.location.search
-  return path.slice(1).split("").reduce(
-    (result, char, i) =>
-      result + (char === baseUri[i] ? "" : char),
-    ""
-  )
+  return path
+    .slice(1)
+    .split("")
+    .reduce((result, char, i) => result + (char === baseUri[i] ? "" : char), "")
 }
 
 export const SetRouteType = "SetRoute"
 
 export type SetRouteOpts = {
-  viaHistory?: boolean,
+  viaHistory?: boolean
   noBack?: boolean
 }
 
-export const buildSetRoute =
-  <Route>(
-    routeToUri: RouteToUri<Route>,
-    baseUri: string = ""
-  ) => (
-        route: Route,
-        opts: SetRouteOpts
-      ) => (_: Route) => {
-        if (opts.viaHistory) {
-          const historyAction = opts.noBack ? history.replace : history.push
-          historyAction(
-            `/${baseUri ? baseUri + "/" : ""}${routeToUri(route)}`
-          )
-        }
-        return route
+export const buildSetRoute = <Route>(
+  routeToUri: RouteToUri<Route>,
+  baseUri: string = ""
+) => (route: Route, opts: SetRouteOpts) => (_: Route) => {
+  if (opts.viaHistory) {
+    const historyAction = opts.noBack ? history.replace : history.push
+    historyAction(`/${baseUri ? baseUri + "/" : ""}${routeToUri(route)}`)
+  }
+  return route
 }
 
-export const load = <Route>(dispatch: Dispatch<Route>,
-                            uriToRoute: UriToRoute<Route>,
-                            routeToUri: RouteToUri<Route>,
-                            baseUri = "",
-                            isHotReloading = false) => {
+export const load = <Route>(
+  dispatch: Dispatch<Route>,
+  uriToRoute: UriToRoute<Route>,
+  routeToUri: RouteToUri<Route>,
+  baseUri = "",
+  isHotReloading = false
+) => {
   const setRoute = buildSetRoute(routeToUri, baseUri)
   if (!isHotReloading && !(window as any).IS_CORDOVA)
     dispatch(
-      setRoute(
-        uriToRoute(
-          getPath(baseUri)
-        ),
-        {viaHistory: true}
-      ),
+      setRoute(uriToRoute(getPath(baseUri)), {viaHistory: true}),
       SetRouteType
     )
   return history.listen((_, action) => {
-    if (action === "POP") dispatch(
-      setRoute(
-        uriToRoute(
-          getPath(baseUri)
-        ),
-        {viaHistory: true}
-      ),
-      SetRouteType
-    )
+    if (action === "POP")
+      dispatch(
+        setRoute(uriToRoute(getPath(baseUri)), {viaHistory: true}),
+        SetRouteType
+      )
   })
 }
 
@@ -74,4 +60,3 @@ export const load = <Route>(dispatch: Dispatch<Route>,
 export interface State<Route> {
   route: Route
 }
-

@@ -1,2 +1,1 @@
-export default (f: () => void): NodeJS.Timer =>
-  setTimeout(f, 0)
+export default (f: () => void): NodeJS.Timer => setTimeout(f, 0)

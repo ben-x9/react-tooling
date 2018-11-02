@@ -4,15 +4,17 @@ import defer from "./defer"
 let _replaying = false
 let _monitor: any = null
 
-export const flagReplaying = (state: boolean) => _replaying = state
-export const setMonitor = (monitor: any) => { _monitor = monitor }
+export const flagReplaying = (state: boolean) => (_replaying = state)
+export const setMonitor = (monitor: any) => {
+  _monitor = monitor
+}
 
 export const isReplaying = (): boolean =>
-  _replaying || _monitor && _monitor.isTimeTraveling()
+  _replaying || (_monitor && _monitor.isTimeTraveling())
 
-export const dispatch = <S, A extends Action>(_: MiddlewareAPI<S>) =>
-                                             (next: Dispatch<S>) =>
-                                             (action: A) => {
+export const dispatch = <S, A extends Action>(_: MiddlewareAPI<S>) => (
+  next: Dispatch<S>
+) => (action: A) => {
   let syncActivityFinished = false
   let actionQueue: A[] = []
 
@@ -40,4 +42,3 @@ export const dispatch = <S, A extends Action>(_: MiddlewareAPI<S>) =>
 
   return actionWithDispatch
 }
-
