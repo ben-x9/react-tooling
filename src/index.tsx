@@ -27,7 +27,8 @@ import {
   noReplay,
   isUpdateState,
   DispatchUpdateSymbol,
-  Continuation
+  Continuation,
+  nullDispatch
 } from "./dispatcher"
 import {catchError} from "rxjs/operators"
 
@@ -45,7 +46,7 @@ export type AnyAction = Redux.Action
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
 export type Dispatch<S> = Dispatch<S>
-export {createDispatch, noReplay, DispatchUpdateSymbol}
+export {createDispatch, noReplay, DispatchUpdateSymbol, nullDispatch}
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
   constructor(props: P & ActionDispatcher) {
@@ -254,7 +255,7 @@ export const load = function<State extends Router.State<Route>, Route>(
     constructor(state: State & ActionDispatcher) {
       super(state)
       if (typeof (window as any).__REACT_HOT_LOADER__ !== "undefined") {
-        (window as any).__REACT_HOT_LOADER__.warnings = false
+        ;(window as any).__REACT_HOT_LOADER__.warnings = false
       }
     }
 

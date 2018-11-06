@@ -79,6 +79,9 @@ export const createFromReduxDispatch = <S>(
   return dispatchUpdate
 }
 
+export const nullDispatch = ((_: UpdateF<any>) => {}) as Dispatch<any>
+nullDispatch[DispatchUpdateSymbol] = true
+
 export const noReplay = <S>(update: UpdateF<S>): UpdateF<S> => {
   update.noReplay = true
   return update
