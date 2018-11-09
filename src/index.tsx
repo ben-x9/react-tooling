@@ -1,5 +1,4 @@
 import * as React from "react"
-import * as ReactDOM from "react-dom"
 import * as Redux from "redux"
 import {createStore, applyMiddleware, compose} from "redux"
 import {composeWithDevTools} from "remote-redux-devtools"
@@ -31,6 +30,7 @@ import {
   nullDispatch
 } from "./dispatcher"
 import {catchError} from "rxjs/operators"
+import { F1 } from "functools-ts";
 
 export * from "./types"
 export * from "./view"
@@ -129,12 +129,11 @@ export const load = function<State extends Router.State<Route>, Route>(
   routeToUri: RouteToUri<Route>,
   uriToRoute: UriToRoute<Route>,
   module: NodeModule,
+  render: F1<JSXElement, void>,
   hooks: AppHooks<State, Route> = {},
   opts = defaultOpts
 ) {
   const baseUri = opts.baseUri || defaultOpts.baseUri
-  const rootHTMLElement =
-    opts.rootHTMLElement || (defaultOpts.rootHTMLElement as Element | null)
   const remoteDevTools = opts.remoteDevTools || defaultOpts.remoteDevTools
   const routeLens = {
     get: (state: State): Route => state.route,
@@ -243,7 +242,7 @@ export const load = function<State extends Router.State<Route>, Route>(
   } else {
     store = createStore(
       schedule,
-      initialState,
+      initialState as any,
       composeEnhancers(applyMiddleware(dispatch as any))
     )
     if (opts.onLoad) opts.onLoad()
@@ -288,13 +287,12 @@ export const load = function<State extends Router.State<Route>, Route>(
 
   const View = connect((s: any) => s)(Index)
 
-  ReactDOM.render(
+  render(
     <AppContainer>
       <Provider store={store}>
         <View />
       </Provider>
-    </AppContainer>,
-    rootHTMLElement
+    </AppContainer>
   )
 
   const mod = module as HotModule
