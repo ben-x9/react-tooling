@@ -3,7 +3,7 @@ import * as Redux from "redux"
 import {createStore, applyMiddleware, compose} from "redux"
 import {composeWithDevTools} from "remote-redux-devtools"
 import {Provider, connect} from "react-redux"
-import {AppContainer} from "react-hot-loader"
+import {hot} from "react-hot-loader"
 import {
   dispatch,
   flagReplaying,
@@ -96,6 +96,8 @@ const defaultOpts: Opts = {
   // },
   onLoad: () => null
 }
+
+const envName = process.env.NODE_ENV || "development"
 
 export type SetRoute<Route> = {
   setRoute: (route: Route, opts?: Router.SetRouteOpts) => void
@@ -289,26 +291,20 @@ export const load = function<State extends Router.State<Route>, Route>(
 
   const View = connect((s: any) => s)(Index)
 
-  render(
-    <AppContainer>
+  if (envName === "development") {
+    const App = render(
       <Provider store={store}>
         <View />
       </Provider>
-    </AppContainer>
-  )
-
-  const mod = module as HotModule
-  if (mod.hot) {
-    mod.hot.accept()
-    if (opts.onHMR) mod.hot.dispose(opts.onHMR())
+    )
+    hot(module)(App)
+  } else {
+    render(
+      <Provider store={store}>
+        <View />
+      </Provider>
+    )
   }
-}
-
-export interface HotModule extends NodeModule {
-  hot: {
-    accept: (file?: string, cb?: () => void) => void
-    dispose: (callback: () => void) => void
-  } | null
 }
 
 export const exists = (it: any) => it !== undefined && it !== null
