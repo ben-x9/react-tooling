@@ -12,7 +12,7 @@ import {
 } from "./dispatchMiddleware"
 import * as Router from "./router"
 import defer from "./defer"
-import {RouteToUri, UriToRoute, History} from "./router"
+import {RouteToUri, UriToRoute} from "./router"
 import {
   UpdateState,
   isPromise,
@@ -88,7 +88,7 @@ export interface Opts {
 
 const defaultOpts: Opts = {
   baseUri: "",
-  rootHTMLElement: document.body.firstElementChild,
+  // rootHTMLElement: document.body.firstElementChild,
   // remoteDevTools: {
   //   name: "My React App",
   //   hostname: "localhost",
@@ -132,7 +132,6 @@ export const load = function<State extends Router.State<Route>, Route>(
   uriToRoute: UriToRoute<Route>,
   module: NodeModule,
   render: F1<JSXElement, void>,
-  history: History,
   hooks: AppHooks<State, Route> = {},
   opts = defaultOpts
 ) {
@@ -154,7 +153,7 @@ export const load = function<State extends Router.State<Route>, Route>(
   ): RootDispatcher<State, Route> => {
     const stateDispatcher = createFromReduxDispatch<State>(dispatch)
     const routeDispatcher = createDispatch(stateDispatcher, routeLens)
-    const setRoute = Router.buildSetRoute(routeToUri, baseUri, history)
+    const setRoute = Router.buildSetRoute(routeToUri, baseUri)
     return {
       setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
         routeDispatcher(
@@ -266,7 +265,6 @@ export const load = function<State extends Router.State<Route>, Route>(
         getRouteDispatch(getRootDispatcher(this.props.dispatch)),
         uriToRoute,
         routeToUri,
-        history,
         baseUri,
         isHotReloading
       )

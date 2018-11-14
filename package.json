@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.26.0",
+  "version": "0.25.2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
@@ -13,9 +13,7 @@
   "keywords": [
     "react",
     "reactjs",
-    "redux",
-    "typescript",
-    "elm-architecture"
+    "typescript"
   ],
   "scripts": {
     "build": "rm -rf dist && tsc",
@@ -26,6 +24,7 @@
     "check": "npm run compile && npm run check:format"
   },
   "dependencies": {
+    "history": "^4.7.2",
     "functools-ts": "^0.0.15",
     "react": "^16.6.1",
     "react-hot-loader": "^4.3.12",

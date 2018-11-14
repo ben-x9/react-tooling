@@ -1,15 +1,8 @@
-import {Option, F2} from "functools-ts"
+
 import {Dispatch} from "./dispatcher"
+import { createHistory } from "./history";
 
-export type HistoryAction = 'PUSH' | 'POP' | 'REPLACE';
-
-export interface History {
-  listen: (listener: F2<Location, HistoryAction, void>) => () => void
-  push: (path: string) => void
-  replace: (path: string) => void
-}
-
-let history: Option<History> = null
+const history = createHistory()
 
 export type UriToRoute<Route> = (uri: string) => Route
 export type RouteToUri<Route> = (route: Route) => string
@@ -34,12 +27,10 @@ export type SetRouteOpts = {
 export const buildSetRoute = <Route>(
   routeToUri: RouteToUri<Route>,
   baseUri: string = "",
-  phistory: History
 ) => {
-  history = phistory
   return (route: Route, opts: SetRouteOpts) => (_: Route) => {
     if (opts.viaHistory) {
-      const historyAction = opts.noBack ? history!.replace : history!.push
+      const historyAction = opts.noBack ? history.replace : history.push
       historyAction(`/${baseUri ? baseUri + "/" : ""}${routeToUri(route)}`)
     }
     return route
@@ -50,17 +41,16 @@ export const load = <Route>(
   dispatch: Dispatch<Route>,
   uriToRoute: UriToRoute<Route>,
   routeToUri: RouteToUri<Route>,
-  phistory: History,
   baseUri = "",
   isHotReloading = false
 ) => {
-  const setRoute = buildSetRoute(routeToUri, baseUri, phistory)
+  const setRoute = buildSetRoute(routeToUri, baseUri)
   if (!isHotReloading && !(window as any).IS_CORDOVA)
     dispatch(
       setRoute(uriToRoute(getPath(baseUri)), {viaHistory: true}),
       SetRouteType
     )
-  return history!.listen((_, action) => {
+  return history.listen((_, action) => {
     if (action === "POP")
       dispatch(
         setRoute(uriToRoute(getPath(baseUri)), {viaHistory: true}),
