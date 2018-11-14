@@ -88,7 +88,7 @@ export interface Opts {
 
 const defaultOpts: Opts = {
   baseUri: "",
-  rootHTMLElement: document.body.firstElementChild,
+  // rootHTMLElement: document.body.firstElementChild,
   // remoteDevTools: {
   //   name: "My React App",
   //   hostname: "localhost",

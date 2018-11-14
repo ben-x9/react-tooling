@@ -1,5 +1,7 @@
-import createHistory from "history/createBrowserHistory"
+
 import {Dispatch} from "./dispatcher"
+import { createHistory } from "./history";
+
 const history = createHistory()
 
 export type UriToRoute<Route> = (uri: string) => Route
@@ -24,13 +26,15 @@ export type SetRouteOpts = {
 
 export const buildSetRoute = <Route>(
   routeToUri: RouteToUri<Route>,
-  baseUri: string = ""
-) => (route: Route, opts: SetRouteOpts) => (_: Route) => {
-  if (opts.viaHistory) {
-    const historyAction = opts.noBack ? history.replace : history.push
-    historyAction(`/${baseUri ? baseUri + "/" : ""}${routeToUri(route)}`)
+  baseUri: string = "",
+) => {
+  return (route: Route, opts: SetRouteOpts) => (_: Route) => {
+    if (opts.viaHistory) {
+      const historyAction = opts.noBack ? history.replace : history.push
+      historyAction(`/${baseUri ? baseUri + "/" : ""}${routeToUri(route)}`)
+    }
+    return route
   }
-  return route
 }
 
 export const load = <Route>(
