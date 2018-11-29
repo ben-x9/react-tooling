@@ -15,6 +15,9 @@ npm install react-tooling
 https://codesandbox.io/s/yvvwjj7olz
 https://codesandbox.io/s/9omz7q7v94
 
+# Gitter channel
+Have some question reach us on: https://gitter.im/react-tooling/Lobby#
+
 # API Documentation
 
 ## Load
