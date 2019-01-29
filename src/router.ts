@@ -1,6 +1,5 @@
-
 import {Dispatch} from "./dispatcher"
-import { createHistory } from "./history";
+import {createHistory} from "./history"
 
 const history = createHistory()
 
@@ -20,17 +19,17 @@ const getPath = (baseUri = "") => {
 export const SetRouteType = "SetRoute"
 
 export type SetRouteOpts = {
-  viaHistory?: boolean
-  noBack?: boolean
+  pop?: boolean
+  replace?: boolean
 }
 
 export const buildSetRoute = <Route>(
   routeToUri: RouteToUri<Route>,
-  baseUri: string = "",
+  baseUri: string = ""
 ) => {
-  return (route: Route, opts: SetRouteOpts) => (_: Route) => {
-    if (opts.viaHistory) {
-      const historyAction = opts.noBack ? history.replace : history.push
+  return (route: Route, opts: SetRouteOpts = {}) => (_: Route) => {
+    if (!opts.pop) {
+      const historyAction = opts.replace ? history.replace : history.push
       historyAction(`/${baseUri ? baseUri + "/" : ""}${routeToUri(route)}`)
     }
     return route
@@ -46,14 +45,11 @@ export const load = <Route>(
 ) => {
   const setRoute = buildSetRoute(routeToUri, baseUri)
   if (!isHotReloading && !(window as any).IS_CORDOVA)
-    dispatch(
-      setRoute(uriToRoute(getPath(baseUri)), {viaHistory: true}),
-      SetRouteType
-    )
+    dispatch(setRoute(uriToRoute(getPath(baseUri))), SetRouteType)
   return history.listen((_, action) => {
     if (action === "POP")
       dispatch(
-        setRoute(uriToRoute(getPath(baseUri)), {viaHistory: true}),
+        setRoute(uriToRoute(getPath(baseUri)), {pop: true}),
         SetRouteType
       )
   })

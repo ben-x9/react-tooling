@@ -30,7 +30,7 @@ import {
   nullDispatch
 } from "./dispatcher"
 import {catchError} from "rxjs/operators"
-import { F1 } from "functools-ts";
+import {F1} from "functools-ts"
 
 export * from "./types"
 export * from "./view"
@@ -135,6 +135,7 @@ export const load = function<State extends Router.State<Route>, Route>(
   hooks: AppHooks<State, Route> = {},
   opts = defaultOpts
 ) {
+  console.log("check it out")
   const baseUri = opts.baseUri || defaultOpts.baseUri
   const remoteDevTools = opts.remoteDevTools || defaultOpts.remoteDevTools
   const routeLens = {
@@ -156,10 +157,7 @@ export const load = function<State extends Router.State<Route>, Route>(
     const setRoute = Router.buildSetRoute(routeToUri, baseUri)
     return {
       setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
-        routeDispatcher(
-          setRoute(route, opts || {viaHistory: true}),
-          Router.SetRouteType
-        )
+        routeDispatcher(setRoute(route, opts), Router.SetRouteType)
       },
       dispatch: stateDispatcher
     }
