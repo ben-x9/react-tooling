@@ -135,7 +135,6 @@ export const load = function<State extends Router.State<Route>, Route>(
   hooks: AppHooks<State, Route> = {},
   opts = defaultOpts
 ) {
-  console.log("check it out")
   const baseUri = opts.baseUri || defaultOpts.baseUri
   const remoteDevTools = opts.remoteDevTools || defaultOpts.remoteDevTools
   const routeLens = {
