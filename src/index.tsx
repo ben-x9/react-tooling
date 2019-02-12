@@ -157,10 +157,7 @@ export const load = function<State extends Router.State<Route>, Route>(
     const setRoute = Router.buildSetRoute(routeToUri, baseUri)
     return {
       setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
-        routeDispatcher(
-          setRoute(route, opts || {viaHistory: true}),
-          Router.SetRouteType
-        )
+        routeDispatcher(setRoute(route, opts), Router.SetRouteType)
       },
       dispatch: stateDispatcher
     }
