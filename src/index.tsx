@@ -21,7 +21,8 @@ import {
   Dispatcher,
   Dispatch,
   createDispatch,
-  createFromReduxDispatch,
+  dispatcherFromRedux,
+  dispatcherFromReact,
   ActionDispatch,
   noReplay,
   isUpdateState,
@@ -30,7 +31,7 @@ import {
   nullDispatch
 } from "./dispatcher"
 import {catchError} from "rxjs/operators"
-import {F1} from "functools-ts"
+import {F1} from "functools-ts";
 
 export * from "./types"
 export * from "./view"
@@ -46,7 +47,7 @@ export type AnyAction = Redux.Action
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
 export type Dispatch<S> = Dispatch<S>
-export {createDispatch, noReplay, DispatchUpdateSymbol, nullDispatch}
+export {createDispatch, noReplay, DispatchUpdateSymbol, nullDispatch, dispatcherFromReact}
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
   constructor(props: P & ActionDispatcher) {
@@ -151,7 +152,7 @@ export const load = function<State extends Router.State<Route>, Route>(
   const getRootDispatcher = (
     dispatch: ActionDispatch
   ): RootDispatcher<State, Route> => {
-    const stateDispatcher = createFromReduxDispatch<State>(dispatch)
+    const stateDispatcher = dispatcherFromRedux<State>(dispatch)
     const routeDispatcher = createDispatch(stateDispatcher, routeLens)
     const setRoute = Router.buildSetRoute(routeToUri, baseUri)
     return {

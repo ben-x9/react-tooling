@@ -60,7 +60,30 @@ export const isUpdateState = <S>(
 export const isDispatchUpdate = <S>(obj: any): obj is Dispatch<S> =>
   !!obj[DispatchUpdateSymbol]
 
-export const createFromReduxDispatch = <S>(
+export const dispatcherFromReact = <S>(setState: (state: S | F1<S, S>) => void): Dispatch<S> => {
+  let dispatch = ((
+    updateFn: UpdateF<S>,
+    _name?: string,
+    _noReplay?: boolean
+  ) => {
+    setState((state: S) => {
+      const ret = updateFn(state)
+      if (isPromise(ret)) {
+        ret.then(d => setState((state: S) => d(state)))
+        return state
+      } else if (isObservable(ret)) {
+        ret.subscribe(d => setState((state: S) => d(state)))
+        return state
+      } else {
+        return ret
+      }
+    })
+  }) as Dispatch<S>
+  dispatch[DispatchUpdateSymbol] = true
+  return dispatch
+}
+
+export const dispatcherFromRedux = <S>(
   dispatch: ActionDispatch
 ): Dispatch<S> => {
   let dispatchUpdate = ((
