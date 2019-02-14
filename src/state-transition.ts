@@ -1,7 +1,6 @@
 import { UpdateF, Dispatch, isPromise } from "./dispatcher";
 import { isObservable } from "rxjs";
 
-
 const stateTransition = <S>(
   ...transitions: UpdateF<S>[]
 ) => (dispatch: Dispatch<S>): void => {
@@ -32,3 +31,5 @@ const stateTransition = <S>(
     }
   })
 }
+
+export default stateTransition
