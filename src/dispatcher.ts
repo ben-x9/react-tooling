@@ -1,4 +1,4 @@
-import {F1, Curried} from "functools-ts"
+import {F1, Curried, List} from "functools-ts"
 import * as Redux from "redux"
 import {Observable} from "rxjs"
 import {map} from "rxjs/operators"
@@ -148,3 +148,29 @@ export const createDispatch = <S, S1>(
   dispatchUpdate[DispatchUpdateSymbol] = true
   return dispatchUpdate
 }
+
+export const createDispatchFromProp = <S, K extends keyof S>(
+  parentDispatch: Dispatch<S>,
+  key: K
+): Dispatch<S[K]> =>
+  createDispatch(
+    parentDispatch, {
+      get: s => s[key],
+      set: s1 => s => ({
+        ...s,
+        [key]: s1
+      })
+    }
+  )
+
+export const createDispatchFromIndex = <S, S1, K extends keyof S>(parendDispatch: Dispatch<S>, key: K, idx: number): Dispatch<S1> =>
+  createDispatch(
+    parendDispatch,
+    {
+      get: (state) => (state[key] as any)[idx],
+      set: (item) => state => ({
+        ...state,
+        [key]: List.set(state[key] as any, idx, item)
+      })
+    }
+  )
