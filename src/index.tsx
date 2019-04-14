@@ -31,7 +31,7 @@ import {
   nullDispatch
 } from "./dispatcher"
 import {catchError} from "rxjs/operators"
-import {F1} from "functools-ts";
+import {F1} from "functools-ts"
 
 export * from "./types"
 export * from "./view"
@@ -47,7 +47,13 @@ export type AnyAction = Redux.Action
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
 export type Dispatch<S> = Dispatch<S>
-export {createDispatch, noReplay, DispatchUpdateSymbol, nullDispatch, dispatcherFromReact}
+export {
+  createDispatch,
+  noReplay,
+  DispatchUpdateSymbol,
+  nullDispatch,
+  dispatcherFromReact
+}
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
   constructor(props: P & ActionDispatcher) {
