@@ -24,13 +24,13 @@
     "check": "npm run compile && npm run check:format"
   },
   "dependencies": {
-    "history": "^4.7.2",
     "functools-ts": "^0.0.21",
+    "history": "^4.7.2",
     "react": "^16.8.1",
     "react-hot-loader": "^4.6.5",
     "react-redux": "^6.0.0",
     "redux": "^4.0.1",
-    "remote-redux-devtools": "^0.5.13",
+    "remote-redux-devtools": "^0.5.16",
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
@@ -46,6 +46,6 @@
     "prettier": "^1.14.3",
     "tslint": "^5.8.0",
     "tslint-eslint-rules": "^4.1.1",
-    "typescript": "^3.0.3"
+    "typescript": "^3.2.4"
   }
 }
