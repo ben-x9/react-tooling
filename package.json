@@ -19,8 +19,8 @@
     "build": "rm -rf dist && tsc",
     "prepare": "npm run build",
     "compile": "tsc",
-    "format": "prettier --write \"**/*.{ts*(x),js*(on),scss}\"",
-    "check:format": "prettier -l \"**/*.{ts*(x),js*(on),scss}\"",
+    "format": "prettier --write '**/*.{ts*(x),js*(on),scss}' '!dist/**'",
+    "check:format": "prettier -l '**/*.{ts*(x),js*(on),scss}' '!dist/**'",
     "check": "npm run compile && npm run check:format"
   },
   "dependencies": {
@@ -43,7 +43,7 @@
     "@types/redux": "^3.6.0",
     "@types/redux-devtools-extension": "^2.13.2",
     "@types/remote-redux-devtools": "^0.5.2",
-    "prettier": "^1.14.3",
+    "prettier": "^1.16.3",
     "tslint": "^5.8.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "^3.2.4"

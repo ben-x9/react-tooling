@@ -232,12 +232,12 @@ export const load = function<State extends Router.State<Route>, Route>(
   const composeEnhancers = remoteDevTools
     ? composeWithDevTools(Object.assign(remoteDevTools, {realtime: true}))
     : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-      ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-          getMonitor: (monitor: any) => {
-            setMonitor(monitor)
-          }
-        })
-      : compose
+    ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+        getMonitor: (monitor: any) => {
+          setMonitor(monitor)
+        }
+      })
+    : compose
 
   const isHotReloading = store ? true : false
 
