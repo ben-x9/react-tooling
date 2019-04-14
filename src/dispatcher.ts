@@ -60,7 +60,9 @@ export const isUpdateState = <S>(
 export const isDispatchUpdate = <S>(obj: any): obj is Dispatch<S> =>
   !!obj[DispatchUpdateSymbol]
 
-export const dispatcherFromReact = <S>(setState: (state: S | F1<S, S>) => void): Dispatch<S> => {
+export const dispatcherFromReact = <S>(
+  setState: (state: S | F1<S, S>) => void
+): Dispatch<S> => {
   let dispatch = ((
     updateFn: UpdateF<S>,
     _name?: string,
@@ -153,24 +155,23 @@ export const createDispatchFromProp = <S, K extends keyof S>(
   parentDispatch: Dispatch<S>,
   key: K
 ): Dispatch<S[K]> =>
-  createDispatch(
-    parentDispatch, {
-      get: s => s[key],
-      set: s1 => s => ({
-        ...s,
-        [key]: s1
-      })
-    }
-  )
+  createDispatch(parentDispatch, {
+    get: s => s[key],
+    set: s1 => s => ({
+      ...s,
+      [key]: s1
+    })
+  })
 
-export const createDispatchFromIndex = <S, S1, K extends keyof S>(parendDispatch: Dispatch<S>, key: K, idx: number): Dispatch<S1> =>
-  createDispatch(
-    parendDispatch,
-    {
-      get: (state) => (state[key] as any)[idx],
-      set: (item) => state => ({
-        ...state,
-        [key]: List.set(state[key] as any, idx, item)
-      })
-    }
-  )
+export const createDispatchFromIndex = <S, S1, K extends keyof S>(
+  parentDispatch: Dispatch<S>,
+  key: K,
+  idx: number
+): Dispatch<S1> =>
+  createDispatch(parentDispatch, {
+    get: state => (state[key] as any)[idx],
+    set: item => state => ({
+      ...state,
+      [key]: List.set(state[key] as any, idx, item)
+    })
+  })
