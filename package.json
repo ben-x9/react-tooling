@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.26.2",
+  "version": "0.26.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
@@ -19,18 +19,18 @@
     "build": "rm -rf dist && tsc",
     "prepare": "npm run build",
     "compile": "tsc",
-    "format": "prettier --write \"**/*.{ts*(x),js*(on),scss}\"",
-    "check:format": "prettier -l \"**/*.{ts*(x),js*(on),scss}\"",
+    "format": "prettier --write '**/*.{ts*(x),js*(on),scss}' '!dist/**'",
+    "check:format": "prettier -l '**/*.{ts*(x),js*(on),scss}' '!dist/**'",
     "check": "npm run compile && npm run check:format"
   },
   "dependencies": {
-    "history": "^4.7.2",
     "functools-ts": "^0.0.21",
+    "history": "^4.7.2",
     "react": "^16.8.1",
     "react-hot-loader": "^4.6.5",
     "react-redux": "^6.0.0",
     "redux": "^4.0.1",
-    "remote-redux-devtools": "^0.5.13",
+    "remote-redux-devtools": "^0.5.16",
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
@@ -43,9 +43,9 @@
     "@types/redux": "^3.6.0",
     "@types/redux-devtools-extension": "^2.13.2",
     "@types/remote-redux-devtools": "^0.5.2",
-    "prettier": "^1.14.3",
+    "prettier": "^1.16.3",
     "tslint": "^5.8.0",
     "tslint-eslint-rules": "^4.1.1",
-    "typescript": "^3.0.3"
+    "typescript": "^3.2.4"
   }
 }

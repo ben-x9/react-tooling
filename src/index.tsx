@@ -31,7 +31,7 @@ import {
   nullDispatch
 } from "./dispatcher"
 import {catchError} from "rxjs/operators"
-import {F1} from "functools-ts";
+import {F1} from "functools-ts"
 
 export * from "./types"
 export * from "./view"
@@ -47,7 +47,13 @@ export type AnyAction = Redux.Action
 export type ActionDispatcher = {dispatch: ActionDispatch}
 export type Dispatcher<S> = Dispatcher<S>
 export type Dispatch<S> = Dispatch<S>
-export {createDispatch, noReplay, DispatchUpdateSymbol, nullDispatch, dispatcherFromReact}
+export {
+  createDispatch,
+  noReplay,
+  DispatchUpdateSymbol,
+  nullDispatch,
+  dispatcherFromReact
+}
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
   constructor(props: P & ActionDispatcher) {
@@ -226,12 +232,12 @@ export const load = function<State extends Router.State<Route>, Route>(
   const composeEnhancers = remoteDevTools
     ? composeWithDevTools(Object.assign(remoteDevTools, {realtime: true}))
     : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-      ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-          getMonitor: (monitor: any) => {
-            setMonitor(monitor)
-          }
-        })
-      : compose
+    ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+        getMonitor: (monitor: any) => {
+          setMonitor(monitor)
+        }
+      })
+    : compose
 
   const isHotReloading = store ? true : false
 
