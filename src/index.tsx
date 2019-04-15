@@ -28,7 +28,9 @@ import {
   isUpdateState,
   DispatchUpdateSymbol,
   Continuation,
-  nullDispatch
+  nullDispatch,
+  createDispatchFromIndex,
+  createDispatchFromProp
 } from "./dispatcher"
 import {catchError} from "rxjs/operators"
 import {F1} from "functools-ts"
@@ -52,7 +54,9 @@ export {
   noReplay,
   DispatchUpdateSymbol,
   nullDispatch,
-  dispatcherFromReact
+  dispatcherFromReact,
+  createDispatchFromIndex,
+  createDispatchFromProp
 }
 
 export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
