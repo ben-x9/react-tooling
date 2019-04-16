@@ -1,11 +1,11 @@
-import {Dispatcher, isDispatchUpdate} from "./dispatcher"
+import {isDispatchUpdate} from "./dispatcher"
 import React from "react"
 
 export type JSXElement = React.ReactElement<any>
 
 export type View<State> =
   | ((state: State) => JSXElement)
-  | {new (state: State & Dispatcher<State>): React.Component<State>}
+  | {new (state: State): React.Component<State>}
 
 const shallowEqual = (first: any, second: any, logDiff?: boolean): boolean =>
   Object.keys(first).every(key => {
