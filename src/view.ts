@@ -1,4 +1,4 @@
-import {isDispatchUpdate} from "./dispatcher"
+import {isDispatch} from "hydra-dispatch"
 import React from "react"
 
 export type JSXElement = React.ReactElement<any>
@@ -10,7 +10,7 @@ export type View<State> =
 const shallowEqual = (first: any, second: any, logDiff?: boolean): boolean =>
   Object.keys(first).every(key => {
     if (
-      (first[key] && isDispatchUpdate(first[key])) ||
+      (first[key] && isDispatch(first[key])) ||
       typeof first[key] === "function"
     )
       return true

@@ -3,37 +3,12 @@ import * as Redux from "redux"
 import {createStore, applyMiddleware, compose} from "redux"
 import {composeWithDevTools} from "remote-redux-devtools"
 import {Provider, connect} from "react-redux"
-import {hot} from "react-hot-loader"
-import {
-  dispatch,
-  flagReplaying,
-  setMonitor,
-  isReplaying
-} from "./dispatchMiddleware"
 import * as Router from "./router"
-import defer from "./defer"
 import {RouteToUri, UriToRoute} from "./router"
-import {
-  UpdateState,
-  isPromise,
-  SyncState,
-  isObservable,
-  Dispatcher,
-  Dispatch,
-  createDispatch,
-  dispatcherFromRedux,
-  dispatcherFromReact,
-  ActionDispatch,
-  noReplay,
-  isUpdateState,
-  DispatchUpdateSymbol,
-  Continuation,
-  nullDispatch,
-  createDispatchFromIndex,
-  createDispatchFromProp
-} from "./dispatcher"
-import {catchError} from "rxjs/operators"
 import {F1} from "functools-ts"
+import {childDispatch, Dispatcher} from "hydra-dispatch"
+import {updateStateReducer, dispatcherFromRedux, GotErrorType, GotError, isSetState} from "hydra-dispatch-redux"
+import thunk from "redux-thunk"
 
 export * from "./types"
 export * from "./view"
@@ -43,45 +18,6 @@ export type JSXElement = React.ReactElement<any>
 export {React, JSX}
 
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
-
-export type AnyAction = Redux.Action
-
-export type ActionDispatcher = {dispatch: ActionDispatch}
-export type Dispatcher<S> = Dispatcher<S>
-export type Dispatch<S> = Dispatch<S>
-export {
-  createDispatch,
-  noReplay,
-  DispatchUpdateSymbol,
-  nullDispatch,
-  dispatcherFromReact,
-  createDispatchFromIndex,
-  createDispatchFromProp
-}
-
-export class Component<P> extends React.PureComponent<P & ActionDispatcher> {
-  constructor(props: P & ActionDispatcher) {
-    super(props)
-    this.dispatch = this.dispatch.bind(this)
-  }
-
-  dispatch<A extends Redux.Action>(action: A) {
-    return this.props.dispatch(action)
-  }
-}
-
-export enum ActionType {
-  Init = "ReactiveElm/Init"
-}
-export type InitType = ActionType
-export const InitType = ActionType.Init
-
-export interface Init {
-  type: "ReactiveElm/Init"
-}
-export const init = {
-  type: "ReactiveElm/Init"
-}
 
 let store: Redux.Store<any>
 
@@ -108,8 +44,6 @@ const defaultOpts: Opts = {
   onLoad: () => null
 }
 
-const envName = process.env.NODE_ENV || "development"
-
 export type SetRoute<Route> = {
   setRoute: (route: Route, opts?: Router.SetRouteOpts) => void
 }
@@ -118,111 +52,31 @@ export type RootDispatcher<State, Route> = SetRoute<Route> & Dispatcher<State>
 
 export type RootView<State, Route> =
   | ((state: State) => JSXElement)
-  | {new (state: State & Dispatcher<State>): Component<State>}
-  | {new (state: State & RootDispatcher<State, Route>): Component<State>}
+  | {new (state: State & Dispatcher<State>): React.Component<State>}
+  | {new (state: State & RootDispatcher<State, Route>): React.Component<State>}
 
 export type View<State> =
   | ((state: State) => JSXElement)
-  | {new (state: State & Dispatcher<State>): Component<State>}
+  | {new (state: State & Dispatcher<State>): React.Component<State>}
 
 export type AppHooks<State, Route> = {
-  onInit?: (state: State, dispatch: RootDispatcher<State, Route>) => void
-  onRouteChanged?: (
-    route: Route,
-    dispatch: RootDispatcher<State, Route>
-  ) => void
-  onError?: (error: Error, dispatch: RootDispatcher<State, Route>) => void
+  onInit?: (state: State) => State
+  onRouteChanged?: (route: Route, state: State) => State
+  onError?: (error: Error, state: State) => State
 }
-
-export type Action<S> = Init | UpdateState<S>
 
 export const load = function<State extends Router.State<Route>, Route>(
   initialState: State,
   RootView: RootView<State, Route>,
   routeToUri: RouteToUri<Route>,
   uriToRoute: UriToRoute<Route>,
-  module: NodeModule,
+  _module: NodeModule,
   render: F1<JSXElement, void>,
   hooks: AppHooks<State, Route> = {},
   opts = defaultOpts
 ) {
   const baseUri = opts.baseUri || defaultOpts.baseUri
   const remoteDevTools = opts.remoteDevTools || defaultOpts.remoteDevTools
-  const routeLens = {
-    get: (state: State): Route => state.route,
-    set: (newRoute: Route) => (state: State): State => ({
-      ...(state as any),
-      route: newRoute
-    })
-  }
-  const getRouteDispatch = (
-    rootDispatcher: RootDispatcher<State, Route>
-  ): Dispatch<Route> => createDispatch(rootDispatcher.dispatch, routeLens)
-
-  const getRootDispatcher = (
-    dispatch: ActionDispatch
-  ): RootDispatcher<State, Route> => {
-    const stateDispatcher = dispatcherFromRedux<State>(dispatch)
-    const routeDispatcher = createDispatch(stateDispatcher, routeLens)
-    const setRoute = Router.buildSetRoute(routeToUri, baseUri)
-    return {
-      setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
-        routeDispatcher(setRoute(route, opts), Router.SetRouteType)
-      },
-      dispatch: stateDispatcher
-    }
-  }
-
-  type ActionWithDispatch = Action<State> & {dispatchFromUpdate: ActionDispatch}
-
-  const onError = (
-    error: Error,
-    stateDispatcher: RootDispatcher<State, Route>
-  ): void =>
-    hooks.onError ? hooks.onError(error, stateDispatcher) : console.error(error)
-
-  const schedule = (
-    state: State,
-    {dispatchFromUpdate, ...action}: ActionWithDispatch
-  ) => {
-    if (isReplaying() && (action as any).noReplay) return state
-
-    const stateDispatcher = getRootDispatcher(dispatchFromUpdate)
-    switch (action.type) {
-      case InitType:
-        if (hooks.onInit) hooks.onInit(state, stateDispatcher)
-        return state
-      default:
-        if (isUpdateState(action)) {
-          try {
-            let cont = action.update(state)
-            if (isPromise(cont)) {
-              cont
-                .then(pupdate => dispatchFromUpdate(SyncState(pupdate)))
-                .catch(err => onError(err as Error, stateDispatcher))
-              return state
-            } else if (isObservable(cont)) {
-              cont
-                .pipe(
-                  catchError(
-                    err => onError(err as Error, stateDispatcher) as never
-                  )
-                )
-                .subscribe(pupdate => dispatchFromUpdate(SyncState(pupdate)))
-              return state
-            }
-            if (action.name === Router.SetRouteType && hooks.onRouteChanged) {
-              hooks.onRouteChanged(cont.route, stateDispatcher)
-            }
-            return cont
-          } catch (err) {
-            onError(err as Error, stateDispatcher)
-            return state
-          }
-        }
-        return state
-    }
-  }
 
   // Initalize the store
 
@@ -235,48 +89,64 @@ export const load = function<State extends Router.State<Route>, Route>(
 
   const composeEnhancers = remoteDevTools
     ? composeWithDevTools(Object.assign(remoteDevTools, {realtime: true}))
-    : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-    ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-        getMonitor: (monitor: any) => {
-          setMonitor(monitor)
-        }
-      })
+    : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ 
+    ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     : compose
 
   const isHotReloading = store ? true : false
 
   if (isHotReloading) {
-    flagReplaying(true)
-    store.replaceReducer(schedule)
-    defer(() => flagReplaying(false))
+    store!.replaceReducer(updateStateReducer as any)
   } else {
     store = createStore(
-      schedule,
+      (state: State, action: Redux.AnyAction): State => {
+        const newState = updateStateReducer(state, action)
+        if (action.type === GotErrorType && hooks.onError)
+          return hooks.onError((action as GotError).error, newState)
+        if (isSetState(action) && action.type === "SetRoute" && hooks.onRouteChanged) {
+          return hooks.onRouteChanged(newState.route, newState)
+        }
+        return newState
+      },
       initialState as any,
-      composeEnhancers(applyMiddleware(dispatch as any))
+      composeEnhancers(applyMiddleware(thunk))
     )
     if (opts.onLoad) opts.onLoad()
   }
 
-  class Index extends Component<any> {
+  class Index extends React.Component<any> {
     unloadRouter: () => void
 
-    constructor(state: State & ActionDispatcher) {
+    constructor(state: State) {
       super(state)
       if (typeof (window as any).__REACT_HOT_LOADER__ !== "undefined") {
         ;(window as any).__REACT_HOT_LOADER__.warnings = false
       }
     }
 
+    getRootDispatcher(): RootDispatcher<State, Route> {
+      const routeDispatcher = childDispatch<State, "route">(this.props.dispatch, "route")
+      const setRoute = Router.buildSetRoute(routeToUri, baseUri)
+      return {
+        setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
+          routeDispatcher(setRoute(route, opts) as any, Router.SetRouteType)
+        },
+        dispatch: this.props.dispatch
+      }
+    }
+
     componentWillMount() {
+      const routeDispatcher = childDispatch<State, "route">(this.props.dispatch, "route")
       this.unloadRouter = Router.load(
-        getRouteDispatch(getRootDispatcher(this.props.dispatch)),
+        routeDispatcher,
         uriToRoute,
         routeToUri,
         baseUri,
         isHotReloading
       )
-      if (!isHotReloading) this.props.dispatch(init)
+      if (!isHotReloading && hooks.onInit) {
+        this.props.dispatch((state: State) => hooks.onInit!(state), "OnInitHook")
+      }
     }
 
     componentWillUnmount() {
@@ -286,31 +156,25 @@ export const load = function<State extends Router.State<Route>, Route>(
     render() {
       // Force TS to see RootJSXElement as an SFC due to this bug:
       // https://github.com/Microsoft/TypeScript/issues/15463
-
-      const rootDispatcher = getRootDispatcher(this.props.dispatch)
       const Elem = (RootView as any) as (
         props: State & RootDispatcher<State, Route>
       ) => JSX.Element
-      return <Elem {...this.props as State} {...rootDispatcher} />
+      return <Elem {...this.props as State} {...this.getRootDispatcher()} />
     }
   }
 
-  const View = connect((s: any) => s)(Index)
+  const View = connect(
+    (s: any) => s, 
+    (dispatch) => ({
+      dispatch: dispatcherFromRedux(dispatch)
+    })
+  )(Index)
 
-  if (envName === "development") {
-    const App = render(
-      <Provider store={store}>
-        <View />
-      </Provider>
-    )
-    hot(module)(App)
-  } else {
-    render(
-      <Provider store={store}>
-        <View />
-      </Provider>
-    )
-  }
+  render(
+    <Provider store={store!}>
+      <View />
+    </Provider>
+  )
 }
 
 export const exists = (it: any) => it !== undefined && it !== null
@@ -325,25 +189,3 @@ export function log<T>(value: T, ...others: any[]) {
 export type Mutable<T extends {[x: string]: any}, K extends string> = {
   [P in K]: T[P]
 }
-
-type UpdateF<S> = (state: S) => Continuation<S>
-type UpdateFWithProps<P, S> = (props: P) => UpdateF<S>
-
-export type DispatchWithProps<P, S> = (
-  f: UpdateFWithProps<P, S>,
-  name?: string,
-  noReplay?: boolean
-) => void
-
-export type DispatcherWithProps<P, S> = {
-  dispatch: DispatchWithProps<P, S>
-}
-
-export const createDispatchWithProps = <P, S>(
-  dispatch: Dispatch<S>,
-  props: P
-): DispatchWithProps<P, S> => (
-  f: UpdateFWithProps<P, S>,
-  name?: string,
-  noReplay?: boolean
-) => dispatch(f(props), name, noReplay)
