@@ -1,4 +1,4 @@
-import {Dispatch} from "./dispatcher"
+import {Dispatch} from "hydra-dispatch"
 import {createHistory} from "./history"
 
 const history = createHistory()
