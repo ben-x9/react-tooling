@@ -7,7 +7,13 @@ import * as Router from "./router"
 import {RouteToUri, UriToRoute} from "./router"
 import {F1} from "functools-ts"
 import {childDispatch, Dispatcher} from "hydra-dispatch"
-import {updateStateReducer, dispatcherFromRedux, GotErrorType, GotError, isSetState} from "hydra-dispatch-redux"
+import {
+  updateStateReducer,
+  dispatcherFromRedux,
+  GotErrorType,
+  GotError,
+  isSetState
+} from "hydra-dispatch-redux"
 import thunk from "redux-thunk"
 
 export * from "./types"
@@ -89,7 +95,7 @@ export const load = function<State extends Router.State<Route>, Route>(
 
   const composeEnhancers = remoteDevTools
     ? composeWithDevTools(Object.assign(remoteDevTools, {realtime: true}))
-    : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ 
+    : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     : compose
 
@@ -103,7 +109,11 @@ export const load = function<State extends Router.State<Route>, Route>(
         const newState = updateStateReducer(state, action)
         if (action.type === GotErrorType && hooks.onError)
           return hooks.onError((action as GotError).error, newState)
-        if (isSetState(action) && action.type === "SetRoute" && hooks.onRouteChanged) {
+        if (
+          isSetState(action) &&
+          action.type === "SetRoute" &&
+          hooks.onRouteChanged
+        ) {
           return hooks.onRouteChanged(newState.route, newState)
         }
         return newState
@@ -125,7 +135,10 @@ export const load = function<State extends Router.State<Route>, Route>(
     }
 
     getRootDispatcher(): RootDispatcher<State, Route> {
-      const routeDispatcher = childDispatch<State, "route">(this.props.dispatch, "route")
+      const routeDispatcher = childDispatch<State, "route">(
+        this.props.dispatch,
+        "route"
+      )
       const setRoute = Router.buildSetRoute(routeToUri, baseUri)
       return {
         setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
@@ -136,7 +149,10 @@ export const load = function<State extends Router.State<Route>, Route>(
     }
 
     componentWillMount() {
-      const routeDispatcher = childDispatch<State, "route">(this.props.dispatch, "route")
+      const routeDispatcher = childDispatch<State, "route">(
+        this.props.dispatch,
+        "route"
+      )
       this.unloadRouter = Router.load(
         routeDispatcher,
         uriToRoute,
@@ -145,7 +161,10 @@ export const load = function<State extends Router.State<Route>, Route>(
         isHotReloading
       )
       if (!isHotReloading && hooks.onInit) {
-        this.props.dispatch((state: State) => hooks.onInit!(state), "OnInitHook")
+        this.props.dispatch(
+          (state: State) => hooks.onInit!(state),
+          "OnInitHook"
+        )
       }
     }
 
@@ -164,8 +183,8 @@ export const load = function<State extends Router.State<Route>, Route>(
   }
 
   const View = connect(
-    (s: any) => s, 
-    (dispatch) => ({
+    (s: any) => s,
+    dispatch => ({
       dispatch: dispatcherFromRedux(dispatch)
     })
   )(Index)
