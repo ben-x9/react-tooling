@@ -36,7 +36,7 @@ export interface Opts {
     port: number
   }
   onLoad?: () => any
-  onHMR?: () => any
+//  onHMR?: () => any
 }
 
 const defaultOpts: Opts = {
@@ -188,6 +188,7 @@ export const load = function<State extends Router.State<Route>, Route>(
       dispatch: dispatcherFromRedux(dispatch)
     })
   )(Index)
+
 
   render(
     <Provider store={store!}>
