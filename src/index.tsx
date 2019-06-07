@@ -188,7 +188,6 @@ export const load = function<State extends Router.State<Route>, Route>(
     })
   )(Index)
 
-
   render(
     <Provider store={store!}>
       <View />
