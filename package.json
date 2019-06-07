@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.27.0",
+  "version": "0.27.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
@@ -24,25 +24,22 @@
     "check": "npm run compile && npm run check:format"
   },
   "dependencies": {
-    "functools-ts": "^0.1.0",
+    "functools-ts": "^0.2.0",
     "history": "^4.9.0",
     "react": "^16.8.6",
-    "react-hot-loader": "^4.8.7",
-    "react-redux": "^6.0.0",
+    "react-redux": "^7.0.3",
     "redux-thunk": "^2.3.0",
     "hydra-dispatch": "^0.1.0",
     "hydra-dispatch-redux": "^0.1.0",
     "redux": "^4.0.1",
-    "remote-redux-devtools": "^0.5.16",
-    "rxjs": "^6.4.0"
+    "remote-redux-devtools": "^0.5.16"
   },
   "devDependencies": {
     "@types/history": "^4.6.2",
     "@types/node": "^8.0.54",
     "@types/react": "^16.8.6",
-    "@types/react-dom": "^16.8.0",
-    "@types/react-hot-loader": "^3.0.5",
-    "@types/react-redux": "^6.0.7",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-redux": "^7.0.9",
     "@types/redux": "^3.6.0",
     "@types/redux-devtools-extension": "^2.13.2",
     "@types/remote-redux-devtools": "^0.5.2",
