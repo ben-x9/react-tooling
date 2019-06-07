@@ -36,7 +36,6 @@ export interface Opts {
     port: number
   }
   onLoad?: () => any
-//  onHMR?: () => any
 }
 
 const defaultOpts: Opts = {
