@@ -1,6 +1,6 @@
 {
   "name": "react-tooling",
-  "version": "0.27.1",
+  "version": "0.27.2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Tooling for React",
@@ -29,8 +29,8 @@
     "react": "^16.8.6",
     "react-redux": "^7.0.3",
     "redux-thunk": "^2.3.0",
-    "hydra-dispatch": "^0.1.0",
-    "hydra-dispatch-redux": "^0.1.0",
+    "hydra-dispatch": "^0.2.4",
+    "hydra-dispatch-redux": "^0.2.4",
     "redux": "^4.0.1",
     "remote-redux-devtools": "^0.5.16"
   },
