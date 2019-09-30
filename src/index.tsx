@@ -65,7 +65,7 @@ export type View<State> =
   | {new (state: State & Dispatcher<State>): React.Component<State>}
 
 export type AppHooks<State, Route> = {
-  onInit?: (state: State) => State
+  onInit?: (state: State, setRoute: F1<Route, void>) => State
   onRouteChanged?: (route: Route, state: State) => State
   onError?: (error: Error, state: State) => State
 }
@@ -159,9 +159,13 @@ export const load = function<State extends Router.State<Route>, Route>(
         baseUri,
         isHotReloading
       )
+      const setRouteFn = Router.buildSetRoute(routeToUri, baseUri)
+      const setRoute = (route: Route) => {
+        routeDispatcher(setRouteFn(route, {replace: true}) as any, Router.SetRouteType)
+      }
       if (!isHotReloading && hooks.onInit) {
         this.props.dispatch(
-          (state: State) => hooks.onInit!(state),
+          (state: State) => hooks.onInit!(state, setRoute),
           "OnInitHook"
         )
       }
