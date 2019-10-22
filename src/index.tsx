@@ -6,7 +6,7 @@ import {Provider, connect} from "react-redux"
 import * as Router from "./router"
 import {RouteToUri, UriToRoute} from "./router"
 import {F1} from "functools-ts"
-import {childDispatch, Dispatcher} from "hydra-dispatch"
+import {childDispatch, Dispatcher, tag} from "hydra-dispatch"
 import {
   updateStateReducer,
   dispatcherFromRedux,
@@ -141,7 +141,7 @@ export const load = function<State extends Router.State<Route>, Route>(
       const setRoute = Router.buildSetRoute(routeToUri, baseUri)
       return {
         setRoute: (route: Route, opts?: Router.SetRouteOpts) => {
-          routeDispatcher(setRoute(route, opts) as any, Router.SetRouteType)
+          routeDispatcher(tag(setRoute(route, opts) as any, Router.SetRouteType))
         },
         dispatch: this.props.dispatch
       }
@@ -161,7 +161,7 @@ export const load = function<State extends Router.State<Route>, Route>(
       )
       const setRouteFn = Router.buildSetRoute(routeToUri, baseUri)
       const setRoute = (route: Route) => {
-        routeDispatcher(setRouteFn(route, {replace: true}) as any, Router.SetRouteType)
+        routeDispatcher(tag(setRouteFn(route, {replace: true}) as any, Router.SetRouteType))
       }
       if (!isHotReloading && hooks.onInit) {
         this.props.dispatch(
