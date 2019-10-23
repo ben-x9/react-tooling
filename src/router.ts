@@ -1,4 +1,4 @@
-import {Dispatch} from "hydra-dispatch"
+import {Dispatch, tag} from "hydra-dispatch"
 import {createHistory} from "./history"
 
 const history = createHistory()
@@ -45,12 +45,14 @@ export const load = <Route>(
 ) => {
   const setRoute = buildSetRoute(routeToUri, baseUri)
   if (!isHotReloading && !(window as any).IS_CORDOVA)
-    dispatch(setRoute(uriToRoute(getPath(baseUri))), SetRouteType)
+    dispatch(tag(setRoute(uriToRoute(getPath(baseUri))) , SetRouteType))
   return history.listen((_, action) => {
     if (action === "POP")
       dispatch(
-        setRoute(uriToRoute(getPath(baseUri)), {pop: true}),
-        SetRouteType
+        tag(
+          setRoute(uriToRoute(getPath(baseUri)), {pop: true}),
+          SetRouteType
+        )
       )
   })
 }
