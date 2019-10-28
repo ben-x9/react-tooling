@@ -21,8 +21,6 @@ export * from "./view"
 
 export type JSXElement = React.ReactElement<any>
 
-export {React, JSX}
-
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 
 let store: Redux.Store<any>
