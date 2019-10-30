@@ -21,8 +21,6 @@ export * from "./view"
 
 export type JSXElement = React.ReactElement<any>
 
-export {React, JSX}
-
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
 
 let store: Redux.Store<any>
@@ -92,6 +90,21 @@ export const load = function<State extends Router.State<Route>, Route>(
   //     }) :
   //     compose
 
+
+  const reducer = (state: State, action: Redux.AnyAction): State => {
+    const newState = updateStateReducer(state, action)
+    if (action.type === GotErrorType && hooks.onError)
+      return hooks.onError((action as GotError).error, newState)
+    if (
+      isSetState(action) &&
+      action.type === "SetRoute" &&
+      hooks.onRouteChanged
+    ) {
+      return hooks.onRouteChanged(newState.route, newState)
+    }
+    return newState
+  }
+
   const composeEnhancers = remoteDevTools
     ? composeWithDevTools(Object.assign(remoteDevTools, {realtime: true}))
     : (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
@@ -101,22 +114,10 @@ export const load = function<State extends Router.State<Route>, Route>(
   const isHotReloading = store ? true : false
 
   if (isHotReloading) {
-    store!.replaceReducer(updateStateReducer as any)
+    store!.replaceReducer(reducer as any)
   } else {
     store = createStore(
-      (state: State, action: Redux.AnyAction): State => {
-        const newState = updateStateReducer(state, action)
-        if (action.type === GotErrorType && hooks.onError)
-          return hooks.onError((action as GotError).error, newState)
-        if (
-          isSetState(action) &&
-          action.type === "SetRoute" &&
-          hooks.onRouteChanged
-        ) {
-          return hooks.onRouteChanged(newState.route, newState)
-        }
-        return newState
-      },
+      reducer,
       initialState as any,
       composeEnhancers(applyMiddleware(thunk))
     )
