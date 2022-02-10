@@ -46,7 +46,7 @@ export const load = <Route>(
   const setRoute = buildSetRoute(routeToUri, baseUri)
   if (!isHotReloading && !(window as any).IS_CORDOVA)
     dispatch(tag(setRoute(uriToRoute(getPath(baseUri))) , SetRouteType))
-  return history.listen((_, action) => {
+  return history.listen(({action}) => {
     if (action === "POP")
       dispatch(
         tag(
